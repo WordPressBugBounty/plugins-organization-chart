@@ -43,6 +43,7 @@ class wpda_org_chart_admin_main {
         $popup = add_submenu_page("wpda_chart_tree_page", "Popup Themes", "Popup Themes", wpda_org_chart_user_permissions::get_allowed_page_permission('chart_popup_page'), "wpda_chart_tree_popup_themes", array($this, 'manage_tree_popup'));
         $user_permissions = add_submenu_page("wpda_chart_tree_page", "User Permissions", "User Permissions", 'manage_options', "wpda_chart_tree_user_permissions", array($this, 'manage_user_permissions'));
         $featured_page = add_submenu_page("wpda_chart_tree_page", "Featured Plugins", "Featured Plugins", 'read', "wpda_chart_featured_plugins", array($this, 'featured_plugins'));
+        $featured_theme_page = add_submenu_page("wpda_chart_tree_page", "Featured Themes", "Featured Themes", 'read', "wpda_chart_featured_themes", array($this, 'featured_themes'));
         $hire_expert = add_submenu_page("wpda_chart_tree_page", 'Hire an Expert', '<span style="color:#00ff66" >Hire an Expert</span>', 'read', "wpda_chart_hire_expert", array($this, 'hire_expert'));
         add_action('load-' . $main_page, array($this, 'save_tree_page'));
         add_action('admin_print_styles-' . $main_page, array($this, 'tree_page_js_css'));
@@ -53,6 +54,7 @@ class wpda_org_chart_admin_main {
         add_action('load-' .  $user_permissions, array($this, 'save_user_permissions'));
         add_action('admin_print_styles-' .  $user_permissions, array($this, 'user_permissions_js_css'));
         add_action('admin_print_styles-' . $featured_page, array($this, 'tree_featured_plugins_js_css'));
+        add_action('admin_print_styles-' . $featured_theme_page, array($this, 'tree_featured_themes_js_css'));
         add_action('admin_print_styles-' . $hire_expert, array($this, 'hire_expert_js_css'));
         if (isset($submenu['wpda_chart_tree_page'])) {
             add_submenu_page('wpda_chart_tree_page', "Support or Any Ideas?", "<span style='color:#00ff66' >Support or Any Ideas?</span>", 'read', "wpdevar_youtube_any_ideas", array($this, 'any_ideas'), 156);
@@ -120,6 +122,10 @@ class wpda_org_chart_admin_main {
 
     public function tree_featured_plugins_js_css() {
         wp_enqueue_style('wpda_chart_featured_page_css', wpda_org_chart_plugin_url . 'admin/assets/css/featured_plugins_css.css');
+    }
+
+    public function tree_featured_themes_js_css() {
+        wp_enqueue_style('wpda_chart_featured_themes_page_css', wpda_org_chart_plugin_url . 'admin/assets/css/featured_themes_css.css');
     }
 
     public function hire_expert_js_css() {
@@ -343,6 +349,139 @@ class wpda_org_chart_admin_main {
             $html .= '<div style="clear:both"></div>';
             $html .= '</div>';
         }
+        echo $html;
+    }
+
+    public function featured_themes() {
+        $themes_array = array(
+            'tistore' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_themes/tistore.jpg',
+                'site_url' => 'https://wpdevart.com/tistore-best-ecommerce-theme-for-wordpress/',
+                'title' => 'TiStore',
+                'description' => 'TiStore is one of the best eCommerce WordPress themes that is fully integrated with WooCommerce.',
+            ),
+            'megastore' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_themes/megastore.jpg',
+                'site_url' => 'https://wpdevart.com/megastore-best-woocommerce-theme-for-wordpress/',
+                'title' => 'MegaStore',
+                'description' => 'MegaStore is one of the best WooCommerce themes available for WordPress.',
+            ),
+            'jevstore' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_themes/jevstore.jpg',
+                'site_url' => 'https://wpdevart.com/jewstore-best-wordpress-jewelry-store-theme/',
+                'title' => 'JewStore',
+                'description' => 'JewStore is a WordPress WooCommerce theme designed for jewelry stores and blogs.',
+            ),
+            'cakeshop' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_themes/cakeshop.jpg',
+                'site_url' => 'https://wpdevart.com/wordpress-cake-shop-theme/',
+                'title' => 'Cake Shop',
+                'description' => 'WordPress Cake Shop is a multi-purpose WooCommerce-ready theme.',
+            ),
+            'flowershop' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_themes/flowershop.jpg',
+                'site_url' => 'https://wpdevart.com/wordpress-flower-shop-theme/',
+                'title' => 'Flower Shop',
+                'description' => 'WordPress Flower Shop is a responsive and WooCommerce-ready theme developed by our team.',
+            ),
+            'coffeeshop' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_themes/coffeeshop.jpg',
+                'site_url' => 'https://wpdevart.com/wordpress-coffee-shop-cafe-theme/',
+                'title' => 'Coffee Shop',
+                'description' => 'It is a responsive and user-friendly theme designed specifically for coffee shop or cafe websites.',
+            ),
+            'weddingplanner' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_themes/weddingplanner.jpg',
+                'site_url' => 'https://wpdevart.com/wordpress-wedding-planner-theme/',
+                'title' => 'Wedding Planner',
+                'description' => 'Wedding Planner is a responsive WordPress theme that is fully integrated with WooCommerce.',
+            ),
+            'Amberd' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_themes/Amberd.jpg',
+                'site_url' => 'https://wpdevart.com/amberd-wordpress-online-store-theme/',
+                'title' => 'AmBerd',
+                'description' => 'AmBerd has all the necessary features and functionality to create a beautiful WordPress website.',
+            ),
+            'bookshop' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_themes/bookshop.jpg',
+                'site_url' => 'https://wpdevart.com/wordpress-book-shop-theme/',
+                'title' => 'Book Shop',
+                'description' => 'The Book Shop WordPress theme is a fresh and well-designed theme for creating bookstores or book blogs.',
+            ),
+            'ecommercemodernstore' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_themes/ecommercemodernstore.jpg',
+                'site_url' => 'https://wpdevart.com/wordpress-ecommerce-modern-store-theme/',
+                'title' => 'Ecommerce Modern Store',
+                'description' => 'WordPress Ecommerce Modern Store theme is one of the best solutions if you want to create an online store.',
+            ),
+            'electrostore' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_themes/electrostore.jpg',
+                'site_url' => 'https://wpdevart.com/wordpress-electronics-store-electro-theme/',
+                'title' => 'ElectroStore',
+                'description' => 'This is a responsive and WooCommerce-ready electronic store theme.',
+            ),
+            'jewelryshop' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_themes/jewelryshop.jpg',
+                'site_url' => 'https://wpdevart.com/wordpress-jewelry-shop-theme/',
+                'title' => 'Jewelry Shop',
+                'description' => 'WordPress Jewelry Shop theme is designed specifically for jewelry websites, but of course, you can use this theme for other types of websites as well.',
+            ),
+            'fashionshop' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_themes/fashionshop.jpg',
+                'site_url' => 'https://wpdevart.com/wordpress-fashion-shop-theme/',
+                'title' => 'Fashion Shop',
+                'description' => 'The Fashion Shop is one of the best responsive WordPress WooCommerce themes for creating a fashion store website.',
+            ),
+            'barbershop' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_themes/barbershop.jpg',
+                'site_url' => 'https://wpdevart.com/wordpress-barbershop-theme/',
+                'title' => 'Barbershop',
+                'description' => 'WordPress Barbershop is another responsive and functional theme developed by our team.',
+            ),
+            'furniturestore' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_themes/furniturestore.jpg',
+                'site_url' => 'https://wpdevart.com/wordpress-furniture-store-theme/',
+                'title' => 'Furniture Store',
+                'description' => 'This is a great option to quickly create an online store using our theme and the WooCommerce plugin. Our theme is fully integrated with WooCommerce.',
+            ),
+            'clothing' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_themes/clothing.jpg',
+                'site_url' => 'https://wpdevart.com/tistore-best-ecommerce-theme-for-wordpress/',
+                'title' => 'Clothing',
+                'description' => 'The Clothing WordPress theme is one of the best responsive eCommerce themes available for WordPress.',
+            ),
+            'weddingphotography' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_themes/weddingphotography.jpg',
+                'site_url' => 'https://wpdevart.com/wordpress-wedding-photography-theme/',
+                'title' => 'Wedding Photography',
+                'description' => 'WordPress Wedding Photography theme is one of the best themes specially designed for wedding photographers or photography companies.',
+            ),
+            'petshop' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_themes/petshop.jpg',
+                'site_url' => 'https://wpdevart.com/wordpress-pet-shop-theme/',
+                'title' => 'Pet Shop',
+                'description' => 'Pet Shop is a powerful and well-designed WooCommerce WordPress theme.',
+            ),
+
+        );
+        $html = '';
+        $html .= '<div class="wpdevart_main"><h1 class="wpda_featured_themes_title">Featured Themes</h1>';
+
+        $html .= '<div class="div-container">';
+        foreach ($themes_array as $theme) {
+            $html .= '<div class="theme" data-slug="tistore"><div class="theme-img">';                
+            $html .= ' <img src="'.$theme['image_url'].'" alt="' . $theme['title'] . '">';
+            $html .= '</div>';
+            $html .= '<div class="theme-description">' . $theme['description'] . '</div>';
+            $html .= '<div class="theme-name-container">'; 
+            $html .= '<h2 class="theme-name">' . $theme['title'] . '</h2>';
+            $html .= '<div class="theme-actions">';
+            $html .= '<a target="_blank" aria-label="Check theme" class="button button-primary load-customize" href="' . $theme['site_url'] . '">Check Theme</a>';
+            $html .= '</div></div></div>';
+            
+            
+        }
+        $html .= '</div></div>';
         echo $html;
     }
 }
