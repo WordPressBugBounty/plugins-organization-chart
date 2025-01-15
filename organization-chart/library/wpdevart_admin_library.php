@@ -42,7 +42,7 @@ class wpda_org_chart_library {
 	public static function create_setting($args) {
 		$html = '';
 		$fn = $args['function_name'];
-		if (is_callable('self::' . $fn)) {
+		if (is_callable([self::class, $fn])) {
 			$html = self::$fn($args);
 		}
 		return $html;
