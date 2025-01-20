@@ -58,8 +58,6 @@ class wpda_org_chart_admin_main {
         add_action('admin_print_styles-' . $hire_expert, array($this, 'hire_expert_js_css'));
         if (isset($submenu['wpda_chart_tree_page'])) {
             add_submenu_page('wpda_chart_tree_page', "Support or Any Ideas?", "<span style='color:#00ff66' >Support or Any Ideas?</span>", 'read', "wpdevar_youtube_any_ideas", array($this, 'any_ideas'), 156);
-        }
-        if (isset($submenu['wpda_chart_tree_page'])) {
             $count_pages = count($submenu['wpda_chart_tree_page'])-1;
             $submenu['wpda_chart_tree_page'][$count_pages][2] = wpda_org_chart_support_url;
         }
