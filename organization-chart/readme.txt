@@ -4,7 +4,7 @@ Donate link: https://wpdevart.com/wordpress-organization-chart-plugin/
 Tags: organization chart, organizational chart, org chart, employee list, staff directory
 Requires at least: 3.4.0
 Tested up to: 6.7.1
-Stable tag: 1.5.6
+Stable tag: 1.5.7
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -130,6 +130,10 @@ Use this shortcode - [wpda_org_chart tree_id=1 theme_id=1].
 5.  Front-end
 
 == Changelog ==
+
+= 1.5.7 =
+
+*  code improved.
 
 = 1.5.6 =
 

@@ -152,11 +152,6 @@
   padding-left: 20px;
   margin: 0px;
 }
-
-.wpdevart_org_chart_container:not(.wpda_mobile) .chart_wpda_mobile_before > ul{
-  /*left: 26px;*/
-}
-
 .wpda_mobile.wpdevart_org_chart_container li,
 .wpdevart_org_chart_container .chart_wpda_mobile_before li{
   display: block;

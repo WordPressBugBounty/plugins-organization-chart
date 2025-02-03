@@ -4,7 +4,7 @@
  * Plugin URI: https://wpdevart.com/wordpress-organization-chart-plugin
  * Author URI: https://wpdevart.com
  * Description: WpDevArt Organization Chart plugin is a nice tool for creating a beautiful organizational chart tree. Use this plugin and create different charts just in a few minutes.
- * Version: 1.5.6
+ * Version: 1.5.7
  * Author: wpdevart
  * License: GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
