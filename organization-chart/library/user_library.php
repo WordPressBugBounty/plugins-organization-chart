@@ -100,6 +100,8 @@ class wpda_org_chart_user_permissions_library {
 		return  $users;
 	}
 
+	/*############ Geting all user capabilities and names ##################*/
+
 	private static function get_array_of_user_capabilities_and_names() {
 		$users_role = wp_roles();
 		$users_role = $users_role->roles;
