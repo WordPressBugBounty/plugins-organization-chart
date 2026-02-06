@@ -5,13 +5,9 @@ defined('ABSPATH') || exit;
 class wpda_org_chart_user_permissions_library {
 	private static $current_user;
 
-	/*############ Function for the initial information ##################*/
-
 	public static function initial_information() {
 		self::$current_user = get_current_user_id();
 	}
-
-	/*############ Function for setting the ID to meta key ##################*/
 
 	public static function set_id_to_meta_key($id, $meta_key) {
 		$user_meta = self::get_all_ids($meta_key);
@@ -23,8 +19,6 @@ class wpda_org_chart_user_permissions_library {
 			update_user_meta(self::$current_user,  $meta_key, $user_meta);
 		}
 	}
-
-	/*############ Function for removing the ID from meta key ##################*/
 
 	public static function remove_id_from_meta_key($id, $meta_key) {
 		$user_meta = self::get_all_ids($meta_key);
@@ -47,8 +41,6 @@ class wpda_org_chart_user_permissions_library {
 		}
 	}
 
-	/*############ Function for getting all users IDs ##################*/
-
 	private static function get_all_user_ids() {
 		$users = get_users();
 		$user_ids = array();
@@ -57,8 +49,6 @@ class wpda_org_chart_user_permissions_library {
 		}
 		return $user_ids;
 	}
-
-	/*############ Function for getting all IDs ##################*/
 
 	public static function get_all_ids($meta_key, $user_id = 0) {
 		if ($user_id == 0) {
@@ -71,8 +61,6 @@ class wpda_org_chart_user_permissions_library {
 		return $user_meta;
 	}
 
-	/*############ Function for finding out if the current user can edit the element ##################*/
-
 	public static function can_current_user_edit_element($key, $id) {
 		if (current_user_can('manage_options')) {
 			return true;
@@ -83,8 +71,6 @@ class wpda_org_chart_user_permissions_library {
 		}
 		return false;
 	}
-
-	/*############ Function for the user roles ##################*/
 
 	public static function get_users() {
 		global $wpdb;
@@ -99,8 +85,6 @@ class wpda_org_chart_user_permissions_library {
 		$users = $users + $all_users;
 		return  $users;
 	}
-
-	/*############ Geting all user capabilities and names ##################*/
 
 	private static function get_array_of_user_capabilities_and_names() {
 		$users_role = wp_roles();

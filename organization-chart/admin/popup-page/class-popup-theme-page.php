@@ -7,8 +7,6 @@ class wpda_org_chart_admin_popup {
 
 	private static $task = '';
 
-	private static $nonce = '';
-
 	public static $options = array();
 
 	private static $page_id = 'wpda_org_chart_popup_id';
@@ -25,7 +23,7 @@ class wpda_org_chart_admin_popup {
 				"params" => array(
 					"popup_width" => array(
 						"title" => "Popup width",
-						"description" => "Type the popup width.",
+						"description" => "Set the popup width (maximum). If the popup content is smaller, the popup width will be reduced.",
 						"default_value" => array('desktop' => '850', 'metric_desktop' => 'px', 'tablet' => '', 'metric_desktop' => 'px', 'mobile' => '', 'metric_desktop' => 'px'),
 						"function_name" => "simple_input",
 						"metric" => array("px"),
@@ -33,7 +31,7 @@ class wpda_org_chart_admin_popup {
 					),
 					"popup_height" => array(
 						"title" => "Popup height",
-						"description" => "Type the popup height.",
+						"description" => "Set the popup height (maximum). If the popup content is smaller, the popup height will be reduced.",
 						"default_value" => array('desktop' => '850', 'metric_desktop' => 'px', 'tablet' => '', 'metric_desktop' => 'px', 'mobile' => '', 'metric_desktop' => 'px'), "function_name" => "simple_input",
 						"metric" => array("px"),
 						"responsive" => true,
@@ -139,7 +137,6 @@ class wpda_org_chart_admin_popup {
 					"popup_animation_type" => array(
 						"title" => "Popup opening animation type",
 						"description" => "Choose the popup opening animation type.",
-						
 						"values" => array(
 							"disable" => "Disable",
 							"fade" => "Fade",
@@ -201,7 +198,7 @@ class wpda_org_chart_admin_popup {
 						"function_name" => "radio",
 					),
 					"close_aditional" => array(
-						"title" => "Additional Close option",
+						"title" => "Additional popup close",
 						"description" => "Choose additional close functions",
 						"values" => array("esc_click" => "ESC or click on overlay", "esc" => "ESC", "click" => "Click", "none" => "Disable"),
 						"default_value" => "esc_click",
@@ -323,8 +320,6 @@ class wpda_org_chart_admin_popup {
 		);
 	}
 
-	/*############ Function to render the popup  ################*/	
-	
 	public static function render_popup() {
 		self::print_notifications();
 		switch (self::$task) {
@@ -337,8 +332,6 @@ class wpda_org_chart_admin_popup {
 		}
 	}
 
-	/*############ Function for the database  ################*/	
-	
 	public static function database_actions() {
 		switch (self::$task) {
 			case 'save_popup_theme':
@@ -361,14 +354,11 @@ class wpda_org_chart_admin_popup {
 		}
 	}
 
-	/*############ Function to display a list of tables ################*/	
-	
 	private static function display_table_list() {
 		$params = array(
 			'name' => 'Popup theme',
 			'add_new_link' => 'admin.php?page=wpda_chart_tree_popup_themes&task=add_edit_popup',
 			'support_link' => wpda_org_chart_support_url,
-			'nonce' => self::$nonce,
 		); // params used in admin-page-task-list-header.php' file
 		include wpda_org_chart_plugin_path . 'library/base-templates/admin-page-task-list-header.php';
 	}
@@ -378,10 +368,6 @@ class wpda_org_chart_admin_popup {
 		global $wpdb;
 		if (count($_POST) == 0)
 			return;
-		if(!wp_verify_nonce($_GET['nonce'], 'wpda_org_chart_tree_popup_theme_page_nonce')){
-			self::$notification_html = '<div id="message" class="error"><p>Securyty Error</p></div>';
-			return;
-		}
 		$params_array = array();
 		if (isset($_POST['name'])) {
 			$name = sanitize_text_field($_POST['name']);
@@ -429,10 +415,6 @@ class wpda_org_chart_admin_popup {
 		global $wpdb;
 		if (count($_POST) == 0)
 			return;
-		if(!wp_verify_nonce($_GET['nonce'], 'wpda_org_chart_tree_popup_theme_page_nonce')){
-			self::$notification_html = '<div id="message" class="error"><p>Securyty Error</p></div>';
-			return;
-		}
 		$params_array = array();
 		if (isset($_POST['name'])) {
 			$name = sanitize_text_field($_POST['name']);
@@ -474,14 +456,8 @@ class wpda_org_chart_admin_popup {
 		self::$notification_html = '<div class="updated"><p><strong>Item Saved</strong></p></div>';
 	}
 
-	/*############ Function for removing the popup theme ##################*/		
-	
 	private static function remove_popup_theme() {
 		global $wpdb;
-		if(!wp_verify_nonce($_GET['nonce'], 'wpda_org_chart_tree_popup_theme_page_nonce')){
-			self::$notification_html = '<div id="message" class="error"><p>Securyty Error</p></div>';
-			return;
-		}
 		$default_theme = $wpdb->get_var($wpdb->prepare('SELECT `default` FROM ' . wpda_org_chart_database::$table_names['popup'] . ' WHERE id="%d"', self::$id));
 		if (!$default_theme) {
 			$wpdb->query($wpdb->prepare('DELETE FROM ' . wpda_org_chart_database::$table_names['popup'] . ' WHERE id="%d"', self::$id));
@@ -492,14 +468,8 @@ class wpda_org_chart_admin_popup {
 		}
 	}
 
-	/*############ Function for duplicating the popup theme ##################*/		
-	
 	private static  function duplicate_popup_theme() {
 		global $wpdb;
-		if(!wp_verify_nonce($_GET['nonce'], 'wpda_org_chart_tree_popup_theme_page_nonce')){
-			self::$notification_html = '<div id="message" class="error"><p>Securyty Error</p></div>';
-			return;
-		}
 		$wpdb->query($wpdb->prepare('INSERT INTO ' . wpda_org_chart_database::$table_names['popup'] . ' ( `name`, `option_value`, `default` ) SELECT CONCAT(`name`,"(duplicate)"), `option_value`, 0 FROM ' . wpda_org_chart_database::$table_names['popup'] . ' WHERE id="%d"', self::$id));
 		$local_id = $wpdb->get_var("SELECT MAX(id) FROM " . wpda_org_chart_database::$table_names['popup']);
 		wpda_org_chart_user_permissions_library::set_id_to_meta_key($local_id, self::$page_id);
@@ -566,10 +536,10 @@ class wpda_org_chart_admin_popup {
 			'keys' => array(
 				'id' => array('name' => 'ID', 'sortable' => true),
 				'name' => array('name' => 'Name', 'link' => '&task=add_edit_popup', 'sortable' => true),
-				'default' => array('name' => 'Default', 'link' => '&task=set_default_popup_theme&nonce='.self::$nonce, 'replace_value' => array('0' => '<img src = "' . wpda_org_chart_plugin_url . 'admin/assets/images/default0.png">', '1' => '<img src = "' . wpda_org_chart_plugin_url . 'admin/assets/images/default1.png">')),
+				'default' => array('name' => 'Default', 'link' => '&task=set_default_popup_theme', 'replace_value' => array('0' => '<img src = "' . wpda_org_chart_plugin_url . 'admin/assets/images/default0.png">', '1' => '<img src = "' . wpda_org_chart_plugin_url . 'admin/assets/images/default1.png">')),
 				'edit' => array('name' => 'Edit', 'link' => '&task=add_edit_popup'),
-				'duplicate' => array('name' => 'Duplicate', 'link' => '&task=duplicate_popup_theme&nonce='.self::$nonce),
-				'delete' => array('name' => 'Delete', 'link' => '&task=remove_popup_theme&nonce='.self::$nonce)
+				'duplicate' => array('name' => 'Duplicate', 'link' => '&task=duplicate_popup_theme'),
+				'delete' => array('name' => 'Delete', 'link' => '&task=remove_popup_theme')
 			),
 			'link_page' => 'wpda_chart_tree_popup_themes',
 		);
@@ -609,7 +579,6 @@ class wpda_org_chart_admin_popup {
 			'plugin_url' => wpda_org_chart_plugin_url,
 			'options' => self::$options,
 			'id' => self::$id,
-			'nonce' => self::$nonce,
 		);
 		include wpda_org_chart_plugin_path . 'library/base-templates/admin-page-task-add-edit-header.php';
 		include wpda_org_chart_plugin_path . 'admin/popup-page/add-edit-popup-template.php';
@@ -622,8 +591,7 @@ class wpda_org_chart_admin_popup {
 	}
 
 	public static function enqueue_scripts_styles() {
-		self::$nonce = wp_create_nonce('wpda_org_chart_tree_popup_theme_page_nonce');
-		wp_enqueue_style('wpda_chart_theme_page_css', wpda_org_chart_plugin_url . 'admin/assets/css/theme_page.css');
+		wp_enqueue_style('wpda_chart_theme_page_css', wpda_org_chart_plugin_url . 'admin/assets/css/popup_page.css');
 		switch (self::$task) {
 			case 'add_edit_popup':
 			case 'update_popup_theme':

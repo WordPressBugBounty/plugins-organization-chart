@@ -24,3 +24,26 @@
   padding-top: 5px;
   display: inline-block;
 }
+.manage-column.sorted a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px; /* spacing between text and arrow */
+}
+
+.manage-column.sorted a .sorting-indicator {
+  width: 0;
+  height: 0;
+  vertical-align: middle;
+}
+
+.manage-column.sorted.asc a .sorting-indicator {
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid #666;
+}
+
+.manage-column.sorted.desc a .sorting-indicator {
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #666;
+}

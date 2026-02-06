@@ -12,8 +12,6 @@ class wpda_org_chart_admin_main {
         $this->gutenberg();
     }
 
-	/*############ Function for the admin files ##################*/	
-	
     private function admin_files() {
         require_once wpda_org_chart_plugin_path . 'admin/tree-page/class-tree-page.php';
         require_once wpda_org_chart_plugin_path . 'admin/theme-page/class-tree-theme-page.php';
@@ -21,8 +19,6 @@ class wpda_org_chart_admin_main {
         require_once wpda_org_chart_plugin_path . 'admin/user-permissions/user-permissions.php';
     }
 
-	/*############ Function for the admin filters ##################*/	
-	
     private function admin_filters() {
         add_action('admin_menu', array($this, 'create_admin_menu'));
         //classic editor button
@@ -31,12 +27,15 @@ class wpda_org_chart_admin_main {
         add_action('admin_enqueue_scripts', array($this, 'mce_buttons_style'));
         add_action('wp_ajax_wpda_org_chart_post_page_content', array($this, "post_page_content"));
     }
-	/*############ Function that creates the admin menu ##################*/
-	
-    public function create_admin_menu() {
-        global $submenu;
+
+    private function setup_user_permission_data() {
         wpda_org_chart_user_permissions_library::initial_information();
         wpda_org_chart_user_permissions::initial_options();
+    }
+
+    public function create_admin_menu() {
+        global $submenu;
+        $this->setup_user_permission_data();
         add_menu_page("Wpdevart Chart", "Wpdevart Chart", wpda_org_chart_user_permissions::get_allowed_page_permission('chart_page'), "wpda_chart_tree_page", array($this, 'manage_tree'), 'dashicons-networking');
         $main_page = add_submenu_page("wpda_chart_tree_page", "Charts", "Charts",  wpda_org_chart_user_permissions::get_allowed_page_permission('chart_page'), "wpda_chart_tree_page", array($this, 'manage_tree'));
         $theme = add_submenu_page("wpda_chart_tree_page", "Themes", "Themes", wpda_org_chart_user_permissions::get_allowed_page_permission('chart_theme_page'), "wpda_chart_tree_themes", array($this, 'manage_tree_themes'));
@@ -57,7 +56,7 @@ class wpda_org_chart_admin_main {
         add_action('admin_print_styles-' . $featured_theme_page, array($this, 'tree_featured_themes_js_css'));
         add_action('admin_print_styles-' . $hire_expert, array($this, 'hire_expert_js_css'));
         if (isset($submenu['wpda_chart_tree_page'])) {
-            add_submenu_page('wpda_chart_tree_page', "Support or Any Ideas?", "<span style='color:#00ff66' >Support or Any Ideas?</span>", 'read', "wpdevar_chart_any_ideas", array($this, 'any_ideas'), 156);
+            add_submenu_page('wpda_chart_tree_page', "Support or Any Ideas?", "<span style='color:#00ff66' >Support or Any Ideas?</span>", 'read', "wpdevar_youtube_any_ideas", array($this, 'any_ideas'), 156);
             $count_pages = count($submenu['wpda_chart_tree_page'])-1;
             $submenu['wpda_chart_tree_page'][$count_pages][2] = wpda_org_chart_support_url;
         }
@@ -103,9 +102,7 @@ class wpda_org_chart_admin_main {
     public function manage_tree_popup() {
         wpda_org_chart_admin_popup::render_popup();
     }
-
-	/*############ User Permissions Function ##################*/
-	
+    // user permissions
     public function save_user_permissions(){
         wpda_org_chart_user_permissions::database_actions();
     }
@@ -130,8 +127,7 @@ class wpda_org_chart_admin_main {
         wp_enqueue_style('wpda_chart_hire_expert_css', wpda_org_chart_plugin_url . 'admin/assets/css/hire_expert.css');
     }
 
-	/*############ Function which connects with gutenberg editor ##################*/
-	
+    /*connect with gutenberg editor*/
     public function gutenberg() {
         require_once wpda_org_chart_plugin_path . 'admin/gutenberg/gutenberg.php';
         $gutenberg = new wpda_chart_gutenberg();
@@ -143,8 +139,6 @@ class wpda_org_chart_admin_main {
     }
     /*post page button add_class*/
     public function mce_buttons($buttons) {
-        wp_enqueue_script('wpda_org_chart_inline_js',wpda_org_chart_plugin_url . 'admin/assets/js/empty.js');
-        wp_add_inline_script('wpda_org_chart_inline_js','wpda_org_chart_insert_post_shortcode_nonce = "'.wp_create_nonce('wpda_org_chart_insert_post_shortcode_nonce').'";');
         array_push($buttons, "wpda_org_chart");
         return $buttons;
     }
@@ -157,12 +151,6 @@ class wpda_org_chart_admin_main {
     /*button html*/
     public function post_page_content() {
         global $wpdb;
-        if(!wp_verify_nonce($_GET['wpda_org_chart_insert_post_shortcode_nonce'],'wpda_org_chart_insert_post_shortcode_nonce')){
-            die();
-        }
-        if(!current_user_can( 'edit_posts' )){
-            die('0');
-        }
         $trees = $wpdb->get_results('SELECT `id`,`name` FROM ' . wpda_org_chart_database::$table_names['tree']);
         $themes = $wpdb->get_results('SELECT `id`,`name` FROM ' . wpda_org_chart_database::$table_names['theme']);
         $cur_chart = intval($_GET["chart_id"]) . "";
@@ -199,8 +187,6 @@ class wpda_org_chart_admin_main {
         exit;
     }
 
-	/*############ Hire Expert Function ##################*/
-	
     public function hire_expert() {
         $plugins_array = array(
             'custom_site_dev' => array(
@@ -249,7 +235,7 @@ class wpda_org_chart_admin_main {
         $content .= '<div class="hire_expert_main">';
         foreach ($plugins_array as $key => $plugin) {
             $content .= '<div class="wpdevart_hire_main"><a target="_blank" class="wpda_hire_buklet" href="https://wpdevart.com/hire-a-wordpress-developer-online-submit-form/">';
-            $content .= '<div class="wpdevart_hire_image"><img src="' . esc_url($plugin["image_url"]) . '"></div>';
+            $content .= '<div class="wpdevart_hire_image"><img src="' . esc_url($plugin["image_url"]) . '" alt="' . esc_attr($plugin["title"]) . '"></div>';
             $content .= '<div class="wpdevart_hire_information">';
             $content .= '<div class="wpdevart_hire_title">' . esc_html($plugin["title"]) . '</div>';
             $content .= '<p class="wpdevart_hire_description">' . esc_html($plugin["description"]) . '</p>';
@@ -260,8 +246,6 @@ class wpda_org_chart_admin_main {
         echo $content;
     }
 
-	/*############ Featured Plugins Function ##################*/
-	
     public function featured_plugins() {
         $plugins_array = array(
             'gallery_album' => array(
@@ -324,7 +308,13 @@ class wpda_org_chart_admin_main {
                 'title' => 'Social Like Box',
                 'description' => 'Facebook like box plugin will help you to display Facebook like box on your website, just add Facebook Like box widget to sidebar or insert it into posts/pages and use it.',
             ),
-            'verticalmenu' => array(
+            'poll' => array(
+                'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_plugins/poll.png',
+                'site_url' => 'http://wpdevart.com/wordpress-polls-plugin',
+                'title' => 'WordPress Polls system',
+                'description' => 'WordPress Polls system is an handy tool for creating polls and survey forms for your visitors. You can use our polls on widgets, posts and pages.',
+            ),
+            'vertical_menu' => array(
                 'image_url' => wpda_org_chart_plugin_url . 'admin/assets/images/featured_plugins/vertical-menu.png',
                 'site_url' => 'https://wpdevart.com/wordpress-vertical-menu-plugin/',
                 'title' => 'WordPress Vertical Menu',
@@ -334,9 +324,9 @@ class wpda_org_chart_admin_main {
         );
         $html = '';
         $html .= '<h1 class="wpda_featured_plugins_title">Featured Plugins</h1>';
-        foreach ($plugins_array as $plugin) {
+       foreach ($plugins_array as $plugin) {
             $html .= '<div class="featured_plugin_main">';
-            $html .= '<div class="featured_plugin_image"><a target="_blank" href="' . esc_url($plugin['site_url']) . '"><img src="' . esc_url($plugin['image_url']) . '"></a></div>';
+            $html .= '<div class="featured_plugin_image"><a target="_blank" href="' . esc_url($plugin['site_url']) . '"><img src="' . esc_url($plugin['image_url']) . '" alt="' . esc_attr($plugin['title']) . '"></a></div>';
             $html .= '<div class="featured_plugin_information">';
             $html .= '<div class="featured_plugin_title">';
             $html .= '<h4><a target="_blank" href="' . esc_url($plugin['site_url']) . '">' . esc_html($plugin['title']) . '</a></h4>';
@@ -467,15 +457,15 @@ class wpda_org_chart_admin_main {
 
         $html .= '<div class="div-container">';
         foreach ($themes_array as $theme) {
-            $html .= '<div class="theme" data-slug="tistore"><div class="theme-img">';                
-            $html .= ' <img src="'.esc_url($theme['image_url']).'" alt="' . esc_attr($theme['title']) . '">';
+            $html .= '<div class="theme" data-slug="tistore"><div class="theme-img">';
+            $html .= '<img src="' . esc_url($theme['image_url']) . '" alt="' . esc_attr($theme['title']) . '">';
             $html .= '</div>';
             $html .= '<div class="theme-description">' . esc_html($theme['description']) . '</div>';
-            $html .= '<div class="theme-name-container">'; 
+            $html .= '<div class="theme-name-container">';
             $html .= '<h2 class="theme-name">' . esc_html($theme['title']) . '</h2>';
             $html .= '<div class="theme-actions">';
-            $html .= '<a target="_blank" aria-label="Check theme" class="button button-primary load-customize" href="' . esc_attr($theme['site_url']) . '">Check Theme</a>';
-            $html .= '</div></div></div>';            
+            $html .= '<a target="_blank" aria-label="Check theme" class="button button-primary load-customize" href="' . esc_url($theme['site_url']) . '">Check Theme</a>';
+            $html .= '</div></div></div>';
         }
         $html .= '</div></div>';
         echo $html;

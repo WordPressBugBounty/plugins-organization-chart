@@ -125,7 +125,16 @@ wpdaOrgChartPopup.prototype.createCloseSection = function (elementIndex) {
 }
 
 wpdaOrgChartPopup.prototype.createPopup = function (elementIndex) {
-	let self = this, themeId = this.popupElements[elementIndex]['popupTheme'], theme = wpda_org_chart_popup_theme[themeId], classs = '', duration = 0;
+	let self = this, themeId = this.popupElements[elementIndex]['popupTheme'], theme = wpda_org_chart_popup_theme[themeId], classs = '', duration = 50;
+	if( theme['popup_animation_time'] != null && typeof(theme['popup_animation_time']['desktop']) != 'undefined' ){
+		duration = Math.max(50, parseInt(theme['popup_animation_time']['desktop']));
+	}
+	if (theme['popup_animation_type'] != 'disable') {
+		classs = 'wpda_animation_' + theme['popup_animation_type'];
+		setTimeout(function () {
+			self.innerElements['popupWindow'].setAttribute('class', '');
+		}, duration)
+	}
 	this.innerElements['popupWindow'] = this.createHtmlElement('div', { 'id': 'wpdaOrgChartPopupWindow' });
 	this.innerElements['popupWindow'].appendChild(this.popupElements[elementIndex]['popupContent'].children[0]);
 	document.getElementsByTagName('body')[0].appendChild(this.innerElements['popupWindow']);
@@ -133,7 +142,7 @@ wpdaOrgChartPopup.prototype.createPopup = function (elementIndex) {
 	// left and top value need generate after popup width and height is initial
 	this.innerElements['popupWindow'].style.left = this.leftPosition(themeId);
 	this.innerElements['popupWindow'].style.top = this.topPosition(themeId);
-	this.innerElements['popupWindow'].style.animationDuration = 0 + 'ms';
+	this.innerElements['popupWindow'].style.animationDuration = duration + 'ms';
 	self.innerElements['popupWindow'].setAttribute('class', classs);
 	this.createCloseSection(elementIndex);	
 	this.innerElements['popupWindow'].getElementsByClassName('wpda_popup_innerhtml')[0].style.paddingTop = theme['padding'][this.defParams['currentView'] +'_top'] + 'px ';
@@ -313,7 +322,7 @@ wpdaOrgChartPopup.prototype.fixThemeValues = function () {
 				continue;
 			for (const key in wpda_org_chart_popup_theme[i]) {
 				// if value is not numeric then metric is empty
-				if (typeof (wpda_org_chart_popup_theme[i][key]) == 'object' && wpda_org_chart_popup_theme[i][key] != null) {					
+				if (typeof (wpda_org_chart_popup_theme[i][key]) == 'object' && wpda_org_chart_popup_theme[i][key] != null) {
 					for (let k = 0; k < types.length; k++) {
 						if (types[k] in wpda_org_chart_popup_theme[i][key] && wpda_org_chart_popup_theme[i][key]['desktop'] != '') {
 							if ('metric_' + types[k] in wpda_org_chart_popup_theme[i][key] && wpda_org_chart_popup_theme[i][key]['metric_' + types[k]] != '') {

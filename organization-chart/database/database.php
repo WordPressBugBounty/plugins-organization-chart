@@ -1,5 +1,5 @@
 <?php
-//installing the database
+//instaling database
 class wpda_org_chart_database{
 	public static $table_names;
 	function __construct(){
@@ -10,9 +10,6 @@ class wpda_org_chart_database{
 			'popup'=>$wpdb->prefix.'wpda_org_chart_popup_theme'
 		);
 	}
-	
-	/*############ Function for installing the table of the chart tree ##################*/	
-	
 	public function install_org_chart_tree_table(){
 		global $wpdb;
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -108,7 +105,6 @@ class wpda_org_chart_database{
 			);			
 		}
 	}
-
 	public static function insert_to_popup_theme_default_values(){
 		global $wpdb;		
 		$isset_popup_theme = $wpdb->get_col( 'SELECT `id` FROM '.self::$table_names['popup'].' ORDER BY `id` ASC');		
@@ -140,6 +136,15 @@ class wpda_org_chart_database{
 	
 	public function update_urls(){
 		global $wpdb;
+		$old_url = explode('/', wpda_org_chart_plugin_url);
+		array_pop($old_url);
+		array_pop($old_url);
+		$old_url = implode('/', $old_url);
+		$old_url .= '/organization-chart/';
+		$sql = "update ".self::$table_names['tree']." SET tree_nodes = replace(tree_nodes, '".$old_url."', '".wpda_org_chart_plugin_url."')";
+		$wpdb->query($sql);
+		$sql = "update ".self::$table_names['tree']." SET tree_nodes = replace(tree_nodes, '".str_replace('/','\\\/',$old_url)."', '".str_replace('/','\\\/',wpda_org_chart_plugin_url)."')";
+		$wpdb->query($sql);
 		//update some changes inside struct
 		$old_url = '/admin/images/';
 		$new_url = '/admin/assets/images/';
@@ -148,6 +153,5 @@ class wpda_org_chart_database{
 		$sql = "update ".self::$table_names['tree']." SET tree_nodes = replace(tree_nodes, '".str_replace('/','\\\/',$old_url)."', '".str_replace('/','\\\/',$new_url)."')";
 		$wpdb->query($sql);
 	}
-
 } 
 ?>

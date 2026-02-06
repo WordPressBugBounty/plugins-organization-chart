@@ -1,16 +1,25 @@
-function wpdaTableMaker(table_id = '') {
-    if (typeof (window.wpdaPageRowsList) == 'undefined') {
-        alert('Can\'t get Rows info please contact plugin authors');
-        return;
+class WpdaTableMaker {
+  constructor(tableId = '') {
+    if (!window.wpdaPageRowsList || !window.wpdaPageRowsInfo) {
+      alert("Can't get Rows info. Please contact plugin authors.");
+      return;
     }
+
     this.initialed = false;
-    this.listObjectModel = {};
-    this.itemCount = window.wpdaPageRowsList.length;
+    this.tableId = tableId;
     this.pageItemCount = 20;
     this.originalRowsList = window.wpdaPageRowsList;
-    this.filteredRowsList = this.originalRowsList;
+    this.filteredRowsList = [...this.originalRowsList];
     this.pageRowsInfo = window.wpdaPageRowsInfo;
-    this.listObjectModel['main'] = document.getElementById(table_id);
+    this.itemCount = this.filteredRowsList.length;
+    this.listObjectModel = {
+      main: document.getElementById(this.tableId)
+    };
+
+    this.#init();
+  }
+
+  #init() {
     this.createNavigationHtml();
     this.createTableHtml();
     this.createTableHead();
@@ -22,308 +31,241 @@ function wpdaTableMaker(table_id = '') {
     this.createTableBody();
     this.addEvents();
     this.initialed = true;
-}
+  }
 
-wpdaTableMaker.prototype.ordering = function () {
-    if (!Array.isArray(this.filteredRowsList) || this.filteredRowsList.length < 1) {
-        return;
+  createHtmlElement(tag = '', attrs = {}, content = '') {
+    const el = document.createElement(tag);
+    for (const [key, val] of Object.entries(attrs)) {
+      el.setAttribute(key, val);
     }
-    let orderBy = window.localStorage.getItem(this.pageRowsInfo['link_page'] + '_order_by');
-    let order = window.localStorage.getItem(this.pageRowsInfo['link_page'] + '_order');
-    let orderType = this.getOrderType(orderBy);
-    if (orderBy == null || order == null) {
-        return;
-    }
-    if (orderType == 'number') {
-        this.filteredRowsList.sort(function (el1, el2) {
-            let returnValue = 0;
-            if (parseInt(el1[orderBy]) > parseInt(el2[orderBy])) {
-                returnValue = 1;
-            }
-            if (parseInt(el1[orderBy]) < parseInt(el2[orderBy])) {
-                returnValue = -1;
-            }
-            if (order == 'asc') {
-                return returnValue;
-            }
-            return -1 * returnValue;
-        });
-    } else {
-        this.filteredRowsList.sort(function (el1, el2) {
-            let returnValue = 0;
-            if (el1[orderBy].toLowerCase() > el2[orderBy].toLowerCase()) {
-                returnValue = 1;
-            }
-            if (el1[orderBy].toLowerCase() < el2[orderBy].toLowerCase()) {
-                returnValue = -1;
-            }
-            if (order == 'asc') {
-                return returnValue;
-            }
-            return -1 * returnValue;
-        });
-    }
-}
-
-wpdaTableMaker.prototype.filter = function () {
-    if (!Array.isArray(this.originalRowsList) || this.originalRowsList.length < 1) {
-        return;
-    }
-    this.filteredRowsList = this.originalRowsList.filter(function (row) {
-        for (key in row) {
-            if ((row[key] + '').toLowerCase().indexOf(this.listObjectModel['searchInput'].value.toLowerCase()) !== -1) {
-                return true;
-            }
-        }
-        return false;
-    }.bind(this));
-    this.itemCount = this.filteredRowsList.length;
-    this.updatePagination(true);
-}
-
-wpdaTableMaker.prototype.createTableHtml = function () {
-    this.listObjectModel['table'] = this.createHtmlElement('table', { 'class': 'wp-list-table widefat fixed pages' });
-    this.listObjectModel['thead'] = this.createHtmlElement('thead', { 'class': 'tablenav top' });
-    this.listObjectModel['tbody'] = this.createHtmlElement('tbody', { 'class': 'tablenav top' });
-    this.listObjectModel['table'].appendChild(this.listObjectModel['thead']);
-    this.listObjectModel['table'].appendChild(this.listObjectModel['tbody']);
-    this.listObjectModel['main'].appendChild(this.listObjectModel['table']);
-}
-
-wpdaTableMaker.prototype.createTableHead = function () {
-    let locHTML = {};
-    this.listObjectModel['link'] = new Array();
-    locHTML['tr'] = this.createHtmlElement('tr');
-    for (key in this.pageRowsInfo['keys']) {
-        if (this.pageRowsInfo['keys'][key].hasOwnProperty('sortable')) {
-            var th = this.createHtmlElement('th', { 'class': 'manage-column sortable desc' });
-            let a = this.createHtmlElement('a', { 'date-key': key });
-            this.listObjectModel['link'].push(a);
-            let spanName = this.createHtmlElement('span', {}, this.pageRowsInfo['keys'][key]['name']);
-            let spanIndicator = this.createHtmlElement('span', { 'class': 'sorting-indicator' });
-            th.appendChild(a);
-            a.appendChild(spanName)
-            a.appendChild(spanIndicator);
-        } else {
-            var th = this.createHtmlElement('th', { 'class': 'wpda-column-small' }, this.pageRowsInfo['keys'][key]['name']);
-        }
-        locHTML['tr'].appendChild(th);
-        this.listObjectModel['thead'].appendChild(locHTML['tr']);
-    }
-}
-
-wpdaTableMaker.prototype.createTableBody = function () {
-    this.listObjectModel['tbody'].innerHTML = '';
-    let currentPage = window.localStorage.getItem(this.pageRowsInfo['link_page'] + '_current_page') || 1;
-    if (this.itemCount > 0) {
-        for (let i = (Math.max(0, (currentPage - 1))) * this.pageItemCount; i < Math.min(currentPage * this.pageItemCount, this.itemCount); i++) {
-            let tr = this.createHtmlElement('tr');
-            for (key in this.pageRowsInfo['keys']) {
-                var td = this.createHtmlElement('td');
-                let name = this.pageRowsInfo['keys'][key]['name'];
-                if (this.filteredRowsList[i].hasOwnProperty(key)) {
-                    name = this.filteredRowsList[i][key];
-                    if(typeof(this.pageRowsInfo['keys'][key]['replace_value']) !== 'undefined' && typeof(this.pageRowsInfo['keys'][key]['replace_value'][name]) !== 'undefined'){
-                        name = this.pageRowsInfo['keys'][key]['replace_value'][name];
-                    }
-                }
-                if (this.pageRowsInfo['keys'][key].hasOwnProperty('link')) {
-                    var child = this.createHtmlElement('a', { 'href': 'admin.php?page=' + this.pageRowsInfo['link_page'] + this.pageRowsInfo['keys'][key]['link'] + '&id=' + this.filteredRowsList[i]['id'] }, name);
-                } else {
-                    var child = this.createHtmlElement('span', {}, name);
-                }
-                td.appendChild(child);
-                tr.appendChild(td);
-            }
-            this.listObjectModel['tbody'].appendChild(tr);
-        }
-    }
-}
-
-wpdaTableMaker.prototype.createNavigationHtml = function () {
-    let locHTML = {};
-    locHTML['main'] = this.createHtmlElement('div', { 'class': 'tablenav top' });
-    this.listObjectModel['searchInput'] = locHTML['search'] = this.createHtmlElement('input', { 'type': 'text', 'placeholder': 'Search', 'class': 'wpda_search' });
-    this.listObjectModel['navContainer'] = locHTML['navContainer'] = this.createHtmlElement('div', { 'class': 'tablenav-pages' });
-    this.listObjectModel['navRowsCount'] = locHTML['navRowsCount'] = this.createHtmlElement('span', { 'class': 'pageCount' }, this.getItemCountText());
-    this.listObjectModel['paginationContainer'] = locHTML['paginationContainer'] = this.createHtmlElement('span', { 'class': 'tablenav top' });
-    locHTML['paginationLinksContainer'] = this.createHtmlElement('span', { 'class': 'pagination-links' });
-    this.listObjectModel['paginationFirstPageLink'] = locHTML['paginationFirstPageLink'] = this.createHtmlElement('a', { 'class': 'tablenav-pages-navspan button', 'title': 'Go to the first page' }, '«');
-    this.listObjectModel['paginationPreviousPageLink'] = locHTML['paginationPreviousPageLink'] = this.createHtmlElement('a', { 'class': 'tablenav-pages-navspan button', 'title': 'Go to the previous page' }, '‹');
-    locHTML['paginationPositionContainer'] = this.createHtmlElement('span', { 'class': 'tablenav top' }, '');
-    this.listObjectModel['paginationPositionContainerCurrent'] = locHTML['paginationPositionContainerCurrent'] = this.createHtmlElement('input', { 'type': 'text', 'class': 'current-page wpda-current-page', 'value': '1', 'size': '1' });
-    this.listObjectModel['paginationPositionContainerCount'] = locHTML['paginationPositionContainerCount'] = this.createHtmlElement('span', {}, ' of ' + Math.ceil(this.itemCount / this.pageItemCount));
-    this.listObjectModel['paginationNextPageLink'] = locHTML['paginationNextPageLink'] = this.createHtmlElement('a', { 'class': 'tablenav-pages-navspan button', 'title': 'Go to the next page' }, '›');
-    this.listObjectModel['paginationLastPageLink'] = locHTML['paginationLastPageLink'] = this.createHtmlElement('a', { 'class': 'tablenav-pages-navspan button', 'title': 'Go to the last page' }, '»');
-    // connect elements together
-    locHTML['main'].appendChild(locHTML['search']);
-    locHTML['main'].appendChild(locHTML['navContainer']);
-    locHTML['navContainer'].appendChild(locHTML['navRowsCount']);
-    locHTML['navContainer'].appendChild(locHTML['paginationContainer']);
-    locHTML['paginationContainer'].appendChild(locHTML['paginationLinksContainer']);
-    locHTML['paginationLinksContainer'].appendChild(locHTML['paginationFirstPageLink']);
-    locHTML['paginationLinksContainer'].appendChild(locHTML['paginationPreviousPageLink']);
-    locHTML['paginationLinksContainer'].appendChild(locHTML['paginationPositionContainer']);
-    locHTML['paginationPositionContainer'].appendChild(locHTML['paginationPositionContainerCurrent']);
-    locHTML['paginationPositionContainer'].appendChild(locHTML['paginationPositionContainerCount']);
-    locHTML['paginationLinksContainer'].appendChild(locHTML['paginationNextPageLink']);
-    locHTML['paginationLinksContainer'].appendChild(locHTML['paginationLastPageLink']);
-    this.listObjectModel['main'].appendChild(locHTML['main']);
-}
-
-wpdaTableMaker.prototype.addEvents = function () {
-    let self = this;
-    this.listObjectModel['searchInput'].addEventListener('input', function () {
-        window.localStorage.setItem(self.pageRowsInfo['link_page'] + '_filter', this.value);
-        self.filter();
-        self.createTableBody();
-    });
-    // add ordering functionality
-    for (let i = 0; i < this.listObjectModel['link'].length; i++) {
-        this.listObjectModel['link'][i].addEventListener('click', function () {
-            if (self.pageRowsInfo['keys'].hasOwnProperty(this.getAttribute('date-key'))) {
-                self.resetOrderingCss();
-                let previousOrderBy = window.localStorage.getItem(self.pageRowsInfo['link_page'] + '_order_by');
-                let order = window.localStorage.getItem(self.pageRowsInfo['link_page'] + '_order');
-                if (order === null || order === 'desc' || previousOrderBy != this.getAttribute('date-key')) {
-                    window.localStorage.setItem(self.pageRowsInfo['link_page'] + '_order', 'asc');
-                } else {
-                    window.localStorage.setItem(self.pageRowsInfo['link_page'] + '_order', 'desc');
-                }
-                window.localStorage.setItem(self.pageRowsInfo['link_page'] + '_order_by', this.getAttribute('date-key'));
-            }
-            self.ordering();
-            self.setOrderingCss();
-            self.createTableBody();
-        })
-    }
-    // add pagination functionality    
-    this.listObjectModel['paginationFirstPageLink'].addEventListener('click', function () {
-        window.localStorage.setItem(self.pageRowsInfo['link_page'] + '_current_page', '1');
-        self.updatePagination();
-        self.createTableBody();
-    })
-    this.listObjectModel['paginationPreviousPageLink'].addEventListener('click', function () {
-        let currentPage = window.localStorage.getItem(self.pageRowsInfo['link_page'] + '_current_page');
-        window.localStorage.setItem(self.pageRowsInfo['link_page'] + '_current_page', Math.max(1, (parseInt(currentPage) - 1)));
-        self.updatePagination();
-        self.createTableBody();
-    })
-    this.listObjectModel['paginationPositionContainerCurrent'].addEventListener('change', function () {
-        let maxPageCount = Math.ceil(self.itemCount / self.pageItemCount);
-        let value = Math.min(maxPageCount, parseInt(this.value));
-        if (isNaN(value)) {
-            value = 1;
-        }
-        let currentPage = Math.max(1, value);
-        window.localStorage.setItem(self.pageRowsInfo['link_page'] + '_current_page', currentPage);
-        self.updatePagination();
-        self.createTableBody();
-    })
-    this.listObjectModel['paginationNextPageLink'].addEventListener('click', function () {
-        let maxPageCount = Math.ceil(self.itemCount / self.pageItemCount);
-        let currentPage = window.localStorage.getItem(self.pageRowsInfo['link_page'] + '_current_page');
-        window.localStorage.setItem(self.pageRowsInfo['link_page'] + '_current_page', '' + Math.min(maxPageCount, (parseInt(currentPage) + 1)));
-        self.updatePagination();
-        self.createTableBody();
-    })
-    this.listObjectModel['paginationLastPageLink'].addEventListener('click', function () {
-        let maxPageCount = Math.ceil(self.itemCount / self.pageItemCount);
-        window.localStorage.setItem(self.pageRowsInfo['link_page'] + '_current_page', maxPageCount);
-        self.updatePagination();
-        self.createTableBody();
-    })
-}
-
-wpdaTableMaker.prototype.getItemCountText = function () {
-    switch (parseInt(this.itemCount)) {
-        case 0:
-            return 'no items';
-            break;
-        case 1:
-            return '1 item';
-            break;
-        default:
-            return parseInt(this.itemCount) + ' items';
-    }
-}
-
-wpdaTableMaker.prototype.createHtmlElement = function (tag = "", attr = {}, innerHTML = "") {
-    let el = document.createElement(tag);
-    for (const key in attr) {
-        el.setAttribute(key, attr[key]);
-    }
-    if (innerHTML != '') {
-        el.innerHTML = innerHTML;
-    }
+    if (content) el.innerHTML = content;
     return el;
-}
+  }
 
-wpdaTableMaker.prototype.resetOrderingCss = function () {
-    let sortableColumns = this.listObjectModel['thead'].children[0].getElementsByClassName('manage-column');
-    let length = sortableColumns.length;
-    for (let i = 0; i < length; i++) {
-        sortableColumns[i].setAttribute('class', 'manage-column sortable desc');
-    }
-}
+  getItemCountText() {
+    const count = this.itemCount;
+    return count === 0 ? 'no items' : `${count} item${count > 1 ? 's' : ''}`;
+  }
 
-wpdaTableMaker.prototype.setOrderingCss = function () {
-    let sortableColumns = this.listObjectModel['thead'].children[0].getElementsByClassName('manage-column');
-    let length = sortableColumns.length;
-    let orderBy = window.localStorage.getItem(this.pageRowsInfo['link_page'] + '_order_by');
-    let order = window.localStorage.getItem(this.pageRowsInfo['link_page'] + '_order');
-    for (let i = 0; i < length; i++) {
-        if (sortableColumns[i].getElementsByTagName('a')[0].getAttribute('date-key') == orderBy) {
-            sortableColumns[i].setAttribute('class', 'manage-column sorted ' + order);
-            break;
-        }
-    }
-}
-
-wpdaTableMaker.prototype.updatePagination = function (reset = false) {
-    let currentPage = window.localStorage.getItem(this.pageRowsInfo['link_page'] + '_current_page') || 1;
-    let maxPageCount = Math.ceil(this.itemCount / this.pageItemCount);
-    if (reset && this.initialed) {
-        currentPage = 1;
-        window.localStorage.setItem(this.pageRowsInfo['link_page'] + '_current_page', '1');
-    }
-    this.listObjectModel['paginationPositionContainerCount'].innerHTML = ' of ' + maxPageCount;
-    this.listObjectModel['navRowsCount'].innerHTML = this.getItemCountText();
-    this.listObjectModel['paginationContainer'].style.display = 'inline';
-    this.listObjectModel['paginationFirstPageLink'].classList.remove('disabled')
-    this.listObjectModel['paginationPreviousPageLink'].classList.remove('disabled')
-    this.listObjectModel['paginationNextPageLink'].classList.remove('disabled')
-    this.listObjectModel['paginationLastPageLink'].classList.remove('disabled')
-    if (maxPageCount <= 1) {
-        this.listObjectModel['paginationContainer'].style.display = 'none';
-    }
-    if (currentPage == 1) {
-        this.listObjectModel['paginationFirstPageLink'].classList.add('disabled')
-        this.listObjectModel['paginationPreviousPageLink'].classList.add('disabled')
-    }
-    if (currentPage == maxPageCount) {
-        this.listObjectModel['paginationNextPageLink'].classList.add('disabled')
-        this.listObjectModel['paginationLastPageLink'].classList.add('disabled')
-    }
-
-    this.listObjectModel['paginationPositionContainerCurrent'].value = currentPage;
-}
-
-wpdaTableMaker.prototype.getOrderType = function (orderBy) {
-    let length = this.filteredRowsList.length;
-    for (let i = 0; i < length; i++) {
-        if (isNaN(this.filteredRowsList[i][orderBy])) {
-            return 'string';
-        }
+  getOrderType(key) {
+    for (const row of this.filteredRowsList) {
+      if (isNaN(row[key])) return 'string';
     }
     return 'number';
+  }
+
+  initialValues() {
+    const value = localStorage.getItem(this.pageRowsInfo.link_page + '_filter') || '';
+    this.listObjectModel.searchInput.value = value;
+  }
+
+  filter() {
+    const term = this.listObjectModel.searchInput.value.toLowerCase();
+    this.filteredRowsList = this.originalRowsList.filter(row => {
+      return Object.values(row).some(val => String(val).toLowerCase().includes(term));
+    });
+    this.itemCount = this.filteredRowsList.length;
+    this.updatePagination(true);
+  }
+
+  ordering() {
+    const orderBy = localStorage.getItem(this.pageRowsInfo.link_page + '_order_by');
+    const order = localStorage.getItem(this.pageRowsInfo.link_page + '_order');
+    if (!orderBy || !order) return;
+    const type = this.getOrderType(orderBy);
+    const compare = (a, b) => {
+      let val1 = type === 'number' ? parseInt(a[orderBy]) : String(a[orderBy]).toLowerCase();
+      let val2 = type === 'number' ? parseInt(b[orderBy]) : String(b[orderBy]).toLowerCase();
+      if (val1 === val2) return 0;
+      return (val1 > val2 ? 1 : -1) * (order === 'asc' ? 1 : -1);
+    };
+    this.filteredRowsList.sort(compare);
+  }
+
+  resetOrderingCss() {
+    const ths = this.listObjectModel.thead.querySelectorAll('th.manage-column');
+    ths.forEach(th => th.className = 'manage-column sortable desc');
+  }
+
+  setOrderingCss() {
+    const orderBy = localStorage.getItem(this.pageRowsInfo.link_page + '_order_by');
+    const order = localStorage.getItem(this.pageRowsInfo.link_page + '_order');
+    const links = this.listObjectModel.link || [];
+    for (const link of links) {
+      if (link.getAttribute('date-key') === orderBy) {
+        link.closest('th').className = 'manage-column sorted ' + order;
+        break;
+      }
+    }
+  }
+
+  updatePagination(reset = false) {
+    const pageKey = this.pageRowsInfo.link_page + '_current_page';
+    let currentPage = parseInt(localStorage.getItem(pageKey)) || 1;
+    const maxPage = Math.ceil(this.itemCount / this.pageItemCount);
+    if (reset && this.initialed) {
+      currentPage = 1;
+      localStorage.setItem(pageKey, '1');
+    }
+
+    const model = this.listObjectModel;
+    model.paginationPositionContainerCount.innerHTML = ' of ' + maxPage;
+    model.navRowsCount.innerHTML = this.getItemCountText();
+    model.paginationContainer.style.display = maxPage <= 1 ? 'none' : 'inline';
+
+    const disable = (el, cond) => el && el.classList.toggle('disabled', cond);
+    disable(model.paginationFirstPageLink, currentPage === 1);
+    disable(model.paginationPreviousPageLink, currentPage === 1);
+    disable(model.paginationNextPageLink, currentPage === maxPage);
+    disable(model.paginationLastPageLink, currentPage === maxPage);
+
+    model.paginationPositionContainerCurrent.value = currentPage;
+  }
+
+  createTableHtml() {
+    const table = this.createHtmlElement('table', { class: 'wp-list-table widefat fixed pages' });
+    const thead = this.createHtmlElement('thead', { class: 'tablenav top' });
+    const tbody = this.createHtmlElement('tbody', { class: 'tablenav top' });
+    table.append(thead, tbody);
+    this.listObjectModel.table = table;
+    this.listObjectModel.thead = thead;
+    this.listObjectModel.tbody = tbody;
+    this.listObjectModel.main.appendChild(table);
+  }
+
+  createTableHead() {
+    const tr = this.createHtmlElement('tr');
+    this.listObjectModel.link = [];
+    for (const key in this.pageRowsInfo.keys) {
+      const column = this.pageRowsInfo.keys[key];
+      let th;
+      if (column.sortable) {
+        th = this.createHtmlElement('th', { class: 'manage-column sortable desc' });
+        const a = this.createHtmlElement('a', { 'date-key': key });
+        a.append(this.createHtmlElement('span', {}, column.name), this.createHtmlElement('span', { class: 'sorting-indicator' }));
+        th.appendChild(a);
+        this.listObjectModel.link.push(a);
+      } else {
+        th = this.createHtmlElement('th', { class: 'wpda-column-small' }, column.name);
+      }
+      tr.appendChild(th);
+    }
+    this.listObjectModel.thead.appendChild(tr);
+  }
+
+  createTableBody() {
+    const tbody = this.listObjectModel.tbody;
+    tbody.innerHTML = '';
+    const currentPage = parseInt(localStorage.getItem(this.pageRowsInfo.link_page + '_current_page')) || 1;
+    const start = (currentPage - 1) * this.pageItemCount;
+    const end = Math.min(currentPage * this.pageItemCount, this.itemCount);
+
+    for (let i = start; i < end; i++) {
+      const row = this.filteredRowsList[i];
+      const tr = this.createHtmlElement('tr');
+
+      for (const key in this.pageRowsInfo.keys) {
+        const column = this.pageRowsInfo.keys[key];
+        const td = this.createHtmlElement('td');
+        let value = row.hasOwnProperty(key) ? row[key] : column.name;
+
+        if (column.replace_value && column.replace_value[value]) {
+          value = column.replace_value[value];
+        }
+
+        const content = column.link
+          ? this.createHtmlElement('a', { href: `admin.php?page=${this.pageRowsInfo.link_page}${column.link}&id=${row.id}` }, value)
+          : this.createHtmlElement('span', {}, value);
+
+        td.appendChild(content);
+        tr.appendChild(td);
+      }
+
+      tbody.appendChild(tr);
+    }
+  }
+
+  createNavigationHtml() {
+    const model = this.listObjectModel;
+    const mainNav = this.createHtmlElement('div', { class: 'tablenav top' });
+    model.searchInput = this.createHtmlElement('input', { type: 'text', placeholder: 'Search', class: 'wpda_search' });
+    model.navContainer = this.createHtmlElement('div', { class: 'tablenav-pages' });
+    model.navRowsCount = this.createHtmlElement('span', { class: 'pageCount' }, this.getItemCountText());
+    model.paginationContainer = this.createHtmlElement('span', { class: 'tablenav top' });
+
+    const pagination = this.createHtmlElement('span', { class: 'pagination-links' });
+    model.paginationFirstPageLink = this.createHtmlElement('a', { class: 'tablenav-pages-navspan button', title: 'Go to the first page' }, '«');
+    model.paginationPreviousPageLink = this.createHtmlElement('a', { class: 'tablenav-pages-navspan button', title: 'Go to the previous page' }, '‹');
+    const positionContainer = this.createHtmlElement('span', { class: 'tablenav top' });
+    model.paginationPositionContainerCurrent = this.createHtmlElement('input', { type: 'text', class: 'current-page wpda-current-page', value: '1', size: '1' });
+    model.paginationPositionContainerCount = this.createHtmlElement('span', {}, ' of ' + Math.ceil(this.itemCount / this.pageItemCount));
+    model.paginationNextPageLink = this.createHtmlElement('a', { class: 'tablenav-pages-navspan button', title: 'Go to the next page' }, '›');
+    model.paginationLastPageLink = this.createHtmlElement('a', { class: 'tablenav-pages-navspan button', title: 'Go to the last page' }, '»');
+
+    positionContainer.append(model.paginationPositionContainerCurrent, model.paginationPositionContainerCount);
+    pagination.append(model.paginationFirstPageLink, model.paginationPreviousPageLink, positionContainer, model.paginationNextPageLink, model.paginationLastPageLink);
+    model.paginationContainer.appendChild(pagination);
+    model.navContainer.append(model.navRowsCount, model.paginationContainer);
+    mainNav.append(model.searchInput, model.navContainer);
+    model.main.appendChild(mainNav);
+  }
+
+  addEvents() {
+    const self = this;
+    const model = this.listObjectModel;
+
+    model.searchInput.addEventListener('input', function () {
+      localStorage.setItem(self.pageRowsInfo.link_page + '_filter', this.value);
+      self.filter();
+      self.createTableBody();
+    });
+
+    model.link.forEach(link => {
+      link.addEventListener('click', function () {
+        const key = this.getAttribute('date-key');
+        if (!self.pageRowsInfo.keys.hasOwnProperty(key)) return;
+
+        self.resetOrderingCss();
+        const pageKey = self.pageRowsInfo.link_page;
+        const previousOrder = localStorage.getItem(pageKey + '_order');
+        const previousKey = localStorage.getItem(pageKey + '_order_by');
+
+        const order = (previousOrder === null || previousOrder === 'desc' || previousKey !== key) ? 'asc' : 'desc';
+        localStorage.setItem(pageKey + '_order', order);
+        localStorage.setItem(pageKey + '_order_by', key);
+
+        self.ordering();
+        self.setOrderingCss();
+        self.createTableBody();
+      });
+    });
+
+    const paginate = (page) => {
+      localStorage.setItem(self.pageRowsInfo.link_page + '_current_page', String(page));
+      self.updatePagination();
+      self.createTableBody();
+    };
+
+    model.paginationFirstPageLink.addEventListener('click', () => paginate(1));
+    model.paginationPreviousPageLink.addEventListener('click', () => {
+      const current = parseInt(localStorage.getItem(self.pageRowsInfo.link_page + '_current_page')) || 1;
+      paginate(Math.max(1, current - 1));
+    });
+    model.paginationNextPageLink.addEventListener('click', () => {
+      const current = parseInt(localStorage.getItem(self.pageRowsInfo.link_page + '_current_page')) || 1;
+      const max = Math.ceil(self.itemCount / self.pageItemCount);
+      paginate(Math.min(max, current + 1));
+    });
+    model.paginationLastPageLink.addEventListener('click', () => {
+      paginate(Math.ceil(self.itemCount / self.pageItemCount));
+    });
+    model.paginationPositionContainerCurrent.addEventListener('change', function () {
+      const value = parseInt(this.value);
+      if (!isNaN(value)) paginate(value);
+    });
+  }
 }
 
-wpdaTableMaker.prototype.initialValues = function () {
-    let valueFilter = window.localStorage.getItem(this.pageRowsInfo['link_page'] + '_filter') || '';
-    this.listObjectModel['searchInput'].value = valueFilter;
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-    wpdaTableList = new wpdaTableMaker('wpda_table_container');
-})
+document.addEventListener('DOMContentLoaded', () => {
+  window.wpdaTableList = new WpdaTableMaker('wpda_table_container');
+});

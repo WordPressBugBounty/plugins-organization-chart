@@ -1,4 +1,4 @@
-<form action="<?php echo $params['current_page_link'] . '&nonce=' . $params['nonce'] . ($params['id'] ? ('&id=' . $params['id']) : ''); ?>" method="post" name="adminForm" class="top_description_table" id="adminForm">
+<form action="<?php echo $params['current_page_link'] . ($params['id'] ? ('&id=' . $params['id']) : ''); ?>" method="post" name="adminForm" class="top_description_table" id="adminForm">
     <div class="container">
         <div class="header">
             <span>
@@ -13,7 +13,7 @@
         <div class="option_panel">
             <div class="parameter_name"></div>
             <div class="all_options_panel">
-                <input type="text" class="theme_name" name="name" placeholder="Enter name here" value="<?php echo isset($name) ? esc_html($name) : '' ?>">
+                <input type="text" class="theme_name" name="name" placeholder="Enter name here" value="<?php echo isset($name) ? esc_attr($name) : '' ?>">
                 <?php
                 $tabs_titles = array();
                 $tabs_content = array();

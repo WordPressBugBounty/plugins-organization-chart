@@ -1,5 +1,10 @@
-function submitButton(value){
-	document.getElementById("adminForm").setAttribute("action",document.getElementById("adminForm").getAttribute("action")+"&task="+value);
-	jQuery('[disabled]').removeAttr('disabled');
-	document.getElementById("adminForm").submit();
+function submitButton(value) {
+	const form = document.getElementById("adminForm");
+	if (!form) return;
+
+	const action = form.getAttribute("action") || "";
+	form.setAttribute("action", action + "&task=" + encodeURIComponent(value));
+
+	jQuery(form).find('[disabled]').removeAttr('disabled');
+	form.submit();
 }

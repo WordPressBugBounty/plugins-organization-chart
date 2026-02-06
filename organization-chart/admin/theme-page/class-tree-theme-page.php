@@ -10,8 +10,6 @@ class wpda_org_chart_tree_theme_page {
 
 	private static $task = '';
 
-	private static $nonce = '';
-
 	public static $options = array();
 
 	private static $page_id = 'wpda_org_chart_theme_id';
@@ -21,8 +19,6 @@ class wpda_org_chart_tree_theme_page {
 		self::$id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 	}
 
-	/*############ Function for the initial options ##################*/		
-	
 	public static function initial_options() {
 		self::$options = array(
 			"org_chart_theme_general" => array(
@@ -30,14 +26,47 @@ class wpda_org_chart_tree_theme_page {
 				"params" => array(
 					"mobile_frendly" => array(
 						"title" => "Responsive",
-						"description" => "How to display the chart, if the organization chart is bigger than the container. Set the  Mobile View & Horizontal option, if you need to display the mobile view only on mobile devices and the horizontal scrolling view on devices with a bigger resolution.",
+						"description" => "How to display the chart, of the organization chart is bigger than the container. Set the  Mobile View & Horizontal option, if you need to display the mobile view only on mobile devices and the horizontal scrolling view on devices with a bigger resolution.",
 						"values" => array("add_scrolll" => "Horizontal scroll ", "mobile" => "Mobile view", "mob_view_only_on_mob" => "Mobile View & Horizontal scroll"),
 						"default_value" => "mobile",
 						"function_name" => "radio",
 					),
+					"toggleable_element" => array(
+						"title" => "Hide elements after",
+						"description" => "Make toggleable elements that have children.",
+						"values" => array("hide_all" => "All togable", "second" => "After second", "thirth" => "After thirth", "disable" => "Disable"),
+						"default_value" => "disable",
+						"function_name" => "radio",
+						"pro"=>true,
+					),
+					"search_bar" => array(
+						"title" => "Search elements",
+						"description" => "when you enable this its add search bar in your chart",
+						"values" => array("enable" => "Enable", "disable" => "Disable"),
+						"default_value" => "disable",
+						"function_name" => "radio",
+						"pro"=>true,
+					),
+					"highligth_color" => array(
+						"title" => "Search highlith background color",
+						"description" => "Select search highlith background color",
+						"default_value" => "#dbe908",
+						"function_name" => "color_input",
+						"show_when" => array('search_bar' => '!=disable'),
+						"pro"=>true,
+					),
+					"search_placeholder" => array(
+						"title" => "Search Placeholder",
+						"description" => "type text, which will show on screen input when its empty.",
+						"default_value" => array('desktop' => 'search by title or description'),
+						"function_name" => "simple_input",
+						"size" => 25,
+						"show_when" => array('search_bar' => '!=disable'),
+						"pro"=>true,
+					),
 					"scroll_position" => array(
-						"title" => "The Scroll position",
-						"description" => "Set the horizontal scroll position.",
+						"title" => "Scroll position",
+						"description" => "Type the horizontal scroll position",
 						"default_value" => "0",
 						"show_val" => true,
 						"min_value" => '0',
@@ -47,20 +76,31 @@ class wpda_org_chart_tree_theme_page {
 					),
 					"background_color" => array(
 						"title" => "Background Color",
-						"description" => "Set the element container background color.",
+						"description" => "Set the container background color.",
 						"values" => array("color1" => "", "color2" => "", "gradient" => "0"),
 						"default_value" => array("color1" => "rgba(255,255,255,0)", "color2" => "rgba(255,255,255,0)", "gradient" => "none"),
 						"function_name" => "gradient_color_input",
 						"transparent" => true,
+					),					
+					"button_theme" => array(
+						"title" => "Buttons theme",
+						"description" => "Select the button theme",
+						"function_name" => "simple_select",
+						"values" => array(
+							"light" => "Light",
+							"dark" => "Dark",
+						),
+						"default_value" => "light",
+						"pro"=>true,
 					),
 					"general_border_popup" => array(
 						"title" => "Item Border",
-						"description" => "Configure the item border settings",
+						"description" => "Select item border",
 						"function_name" => "popup",
 						"params" => array(
 							"border_type" => array(
 								"title" => "Item Border Type",
-								"description" => "Select the border type.",
+								"description" => "Select border type",
 								"function_name" => "simple_select",
 								"preview" => array('id' => 'general_border_demo', 'action' => 'border-style'),
 								"values" => array("solid" => "Solid", "dotted" => "Dotted", "dashed" => "Dashed", "double" => "Double", "groove" => "Groove", "ridge" => "Ridge", "inset" => "Inset", "outset" => "Outset"),
@@ -68,7 +108,7 @@ class wpda_org_chart_tree_theme_page {
 							),
 							"border_color" => array(
 								"title" => "Item Border Color",
-								"description" => "Select the item border color.",
+								"description" => "Select item border color",
 								"default_value" => "#cccccc",
 								"preview" => array('id' => 'general_border_demo', 'action' => 'border-color'),
 								"function_name" => "color_input",
@@ -98,7 +138,7 @@ class wpda_org_chart_tree_theme_page {
 					
 					"padding" => array(
 						"title" => "Padding",
-						"description" => "Type the paddings",
+						"description" => "Type Padding <span style=\"color:red\">important when u enabled search elemment or zoom buttons set pading top for mobile and tablet</span>",
 						"default_value" => array(
 							'desktop_top' => '0',
 							'desktop_right' => '0',
@@ -156,73 +196,84 @@ class wpda_org_chart_tree_theme_page {
 						"description" => "Type here the Zoom in button text.",
 						"default_value" => array('desktop' => '+'),
 						"function_name" => "simple_input",
+						"size" => 15,
 						"pro"=>true,
-						"size" => 15
 					),
 					"zoom_out_text" => array(
 						"title" => "Zoom out button text",
 						"description" => "Type here the Zoom out button text.",
 						"default_value" => array('desktop' => '-'),
 						"function_name" => "simple_input",
+						"size" => 15,
 						"pro"=>true,
-						"size" => 15
 					),
 					"zoom_reset_text" => array(
 						"title" => "Zoom reset button text",
 						"description" => "Type here the Zoom reset button text.",
 						"default_value" => array('desktop' => 'Reset'),
 						"function_name" => "simple_input",
+						"size" => 15,
 						"pro"=>true,
-						"size" => 15
 					),
 					"zoom_fullscreen_text" => array(
 						"title" => "Full screen button text",
 						"description" => "Type here the full screen button text.",
 						"default_value" => array('desktop' => 'Full screen'),
 						"function_name" => "simple_input",
-						"pro"=>true,
 						"size" => 15,
+						"pro"=>true,
 					),
 					"zoom_outfullscreen_text" => array(
 						"title" => "Close button text",
 						"description" => "Type here the close button text.",
 						"default_value" => array('desktop' => 'Exit Full screen'),
 						"function_name" => "simple_input",
-						"pro"=>true,
 						"size" => 15,
+						"pro"=>true,
+					),
+					"zoom_default" => array(
+						"title" => "Default zoom value",
+						"description" => "Type here zoom value which will apply when you open the chart for the first time.",
+						"default_value" => "100",
+						"show_val" => true,
+						"min_value" => '5',
+						"max_value" => '200',
+						"small_text" => '(%)',
+						"function_name" => "range_input",
+						"pro"=>true,
 					),
 					"max_zoomable" => array(
 						"title" => "Maximum Zoom",
-						"description" => "Set the value of the maximum zoom.",
+						"description" => "Choose the maximum zoom value.",
 						"default_value" => "1",
 						"show_val" => true,
 						"min_value" => '1',
 						"max_value" => '10',
 						"small_text" => '(time)',
+						"function_name" => "range_input",
 						"pro"=>true,
-						"function_name" => "range_input"
 					),
 					"min_zoomable" => array(
 						"title" => "Maximum Zoom-out",
-						"description" => "Set the value of the maximum zoom-out.",
+						"description" => "Choose the maximum zoom-out value.",
 						"default_value" => "10",
 						"show_val" => true,
 						"min_value" => '1',
 						"max_value" => '20',
 						"small_text" => '(time)',
+						"function_name" => "range_input",
 						"pro"=>true,
-						"function_name" => "range_input"
 					),
 					"zoom_speed" => array(
 						"title" => "Zoom speed",
-						"description" => "Set the zoom speed.",
+						"description" => "Choose the zoom speed.",
 						"default_value" => "10",
 						"show_val" => true,
 						"min_value" => '1',
 						"max_value" => '100',
 						"small_text" => '(%)',
+						"function_name" => "range_input",
 						"pro"=>true,
-						"function_name" => "range_input"
 					)
 				),
 			),
@@ -231,7 +282,7 @@ class wpda_org_chart_tree_theme_page {
 				"params" => array(
 					"line_color" => array(
 						"title" => "Set the line color.",
-						"description" => "Set the line color",
+						"description" => "Select line color",
 						"default_value" => "#cccccc",
 						"function_name" => "color_input",
 					),
@@ -253,7 +304,7 @@ class wpda_org_chart_tree_theme_page {
 				"params" => array(
 					"item_bg_color" => array(
 						"title" => "Background Color",
-						"description" => "Set the background color of the element",
+						"description" => "Select item background color",
 						"values" => array("color1" => "", "color2" => "", "gradient" => "0"),
 						"default_value" => array("color1" => "#ffffff", "color2" => "#ffffff", "gradient" => "none"),
 						"function_name" => "gradient_color_input",
@@ -261,7 +312,7 @@ class wpda_org_chart_tree_theme_page {
 					),
 					"item_min_width" => array(
 						"title" => "Minimum Width",
-						"description" => "Type the minimum width of the element",
+						"description" => "Type minimum Width",
 						"default_value" => array('desktop' => '120', 'tablet' => '', 'mobile' => '', 'metric_desktop' => 'px'),
 						"metric" => array("px"),
 						"responsive" => true,
@@ -270,7 +321,7 @@ class wpda_org_chart_tree_theme_page {
 					),
 					"item_min_height" => array(
 						"title" => "Minimum Height",
-						"description" => "Type the minimum height of the element",
+						"description" => "Type minimum Height",
 						"default_value" => array('desktop' => '130', 'tablet' => '', 'mobile' => '', 'metric_desktop' => 'px'),
 						"metric" => array("px", '%'),
 						"responsive" => true,
@@ -279,7 +330,7 @@ class wpda_org_chart_tree_theme_page {
 					),
 					"item_max_width" => array(
 						"title" => "Maximum Width",
-						"description" => "Type the maximum width of the element",
+						"description" => "Type maximum Width",
 						"default_value" => array('desktop' => '200', 'tablet' => '', 'mobile' => '', 'metric_desktop' => 'px'),
 						"metric" => array("px"),
 						"responsive" => true,
@@ -288,7 +339,7 @@ class wpda_org_chart_tree_theme_page {
 					),
 					"item_img_max_width" => array(
 						"title" => "Image width",
-						"description" => "Type the image width of the element",
+						"description" => "Type image width",
 						"default_value" => array('desktop' => '120', 'metric_desktop' => 'px'),
 						"metric" => array("px", '%'),
 						"function_name" => "simple_input",
@@ -296,15 +347,15 @@ class wpda_org_chart_tree_theme_page {
 					),
 					"item_img_max_height" => array(
 						"title" => "Image height",
-						"description" => "Type the image height of the element",
+						"description" => "Type image height",
 						"default_value" => array('desktop' => '130', 'metric_desktop' => 'px'),
 						"metric" => array("px", '%'),
 						"function_name" => "simple_input",
 						"pro"=>true,
 					),
 					"item_img_border_radius" => array(
-						"title" => "Type the image border radius",
-						"description" => "Type the image border radius",
+						"title" => "Image Border Radius",
+						"description" => "Type image border radius",
 						"default_value" => array('desktop' => '0', 'metric_desktop' => 'px'),
 						"metric" => array("px", "%"),
 						"preview" => array('id' => 'item_border_demo', 'action' => 'border-radius'),
@@ -312,8 +363,8 @@ class wpda_org_chart_tree_theme_page {
 						"pro"=>true,
 					),
 					"item_img_margin" => array(
-						"title" => "Type the image margins",
-						"description" => "Type the image margins",
+						"title" => "Image Margin",
+						"description" => "Type image margin",
 						"default_value" => array(
 							'desktop_top' => '0',
 							'desktop_right' => '0',
@@ -348,7 +399,7 @@ class wpda_org_chart_tree_theme_page {
 								"function_name" => "simple_select",
 								"values" => wpda_org_chart_library::fonts_select(),
 								"default_value" => "serif",
-								"preview" => array('id' => 'item_title_demo_text', 'action' => 'font-family'),
+								"preview" => array('id' => 'item_title_demo_text', 'action' => 'font-family'),								
 							),
 							"item_title_color" => array(
 								"title" => "Color",
@@ -399,7 +450,6 @@ class wpda_org_chart_tree_theme_page {
 								"preview" => array('id' => 'item_title_demo_text', 'action' => 'font-style'),
 							),
 						)
-						
 					),
 					"item_title_demo_text" => array(
 						"title" => "ABCDEFGHIK LMNOPQRSTVXYZ abcdefghik lmnopqrstvxyz",
@@ -535,14 +585,14 @@ class wpda_org_chart_tree_theme_page {
 								"function_name" => "simple_select",
 								"preview" => array('id' => 'item_border_demo', 'action' => 'border-style'),
 								"values" => array("solid" => "Solid", "dotted" => "Dotted", "dashed" => "Dashed", "double" => "Double", "groove" => "Groove", "ridge" => "Ridge", "inset" => "Inset", "outset" => "Outset"),
-								"default_value" => "solid",
+								"default_value" => "solid",								
 							),
 							"item_border_color" => array(
 								"title" => "Item Border Color",
 								"description" => "Select item border color",
 								"default_value" => "#cccccc",
 								"preview" => array('id' => 'item_border_demo', 'action' => 'border-color'),
-								"function_name" => "color_input",
+								"function_name" => "color_input",								
 							),
 							"item_border_width" => array(
 								"title" => "Border Width",
@@ -550,7 +600,7 @@ class wpda_org_chart_tree_theme_page {
 								"default_value" => array('desktop' => '1', 'metric_desktop' => 'px'),
 								"metric" => array("px"),
 								"preview" => array('id' => 'item_border_demo', 'action' => 'border-width'),
-								"function_name" => "simple_input",
+								"function_name" => "simple_input",								
 							),
 							"item_border_radius" => array(
 								"title" => "Border Radius",
@@ -558,7 +608,7 @@ class wpda_org_chart_tree_theme_page {
 								"default_value" => array('desktop' => '0', 'metric_desktop' => 'px'),
 								"metric" => array("px", "%"),
 								"preview" => array('id' => 'item_border_demo', 'action' => 'border-radius'),
-								"function_name" => "simple_input",
+								"function_name" => "simple_input",								
 							),
 						)
 					),
@@ -606,20 +656,15 @@ class wpda_org_chart_tree_theme_page {
 		}
 	}
 
-	/*############ Function for displaying the table list ##################*/		
-	
 	private static function display_table_list() {
 		$params = array(
 			'name' => 'Theme',
 			'add_new_link' => 'admin.php?page=wpda_chart_tree_themes&task=add_edit_theme',
 			'support_link' => wpda_org_chart_support_url,
-			'nonce' => self::$nonce,
 		); // params used in admin-page-task-list-header.php' file
 		include wpda_org_chart_plugin_path . 'library/base-templates/admin-page-task-list-header.php';
 	}
 
-	/*############ Function for adding or editing the theme ##################*/	
-	
 	private static function add_edit_theme() {
 		$name = self::generate_theme_parameters();
 		$params = array(
@@ -628,22 +673,16 @@ class wpda_org_chart_tree_theme_page {
 			'plugin_url' => wpda_org_chart_plugin_url,
 			'options' => self::$options,
 			'id' => self::$id,
-			'nonce' => self::$nonce,
 		);
 		include wpda_org_chart_plugin_path . 'library/base-templates/admin-page-task-add-edit-header.php';
 		include wpda_org_chart_plugin_path . 'admin/theme-page/add-edit-theme-template.php';
 	}
 
 	/*############  Save function  ################*/
-	
 	private static function save_theme() {
 		if (count($_POST) == 0){
 			return;
-		}
-		if(!wp_verify_nonce($_GET['nonce'], 'wpda_org_chart_tree_theme_page_nonce')){
-			self::$notification_html = '<div id="message" class="error"><p>Securyty Error</p></div>';
-			return;
-		}		
+		}			
 		global $wpdb;		
 		$params_array = array();
 		$name = "Theme";
@@ -690,10 +729,6 @@ class wpda_org_chart_tree_theme_page {
 	private static function update_theme() {
 		if (count($_POST) == 0){
 			return;
-		}
-		if(!wp_verify_nonce($_GET['nonce'], 'wpda_org_chart_tree_theme_page_nonce')){
-			self::$notification_html = '<div id="message" class="error"><p>Securyty Error</p></div>';
-			return;
 		}			
 		global $wpdb;		
 		$params_array = array();
@@ -736,14 +771,8 @@ class wpda_org_chart_tree_theme_page {
 		self::$notification_html = '<div class="updated"><p><strong>Item Saved</strong></p></div>';
 	}
 
-	/*############ Function for removing the theme ##################*/
-	
 	private static function remove_theme() {
 		global $wpdb;
-		if(!wp_verify_nonce($_GET['nonce'], 'wpda_org_chart_tree_theme_page_nonce')){
-			self::$notification_html = '<div id="message" class="error"><p>Securyty Error</p></div>';
-			return;
-		}
 		$default_theme = $wpdb->get_var($wpdb->prepare('SELECT `default` FROM ' . wpda_org_chart_database::$table_names['theme'] . ' WHERE id="%d"', self::$id));
 		if (!$default_theme) {
 			$wpdb->query($wpdb->prepare('DELETE FROM ' . wpda_org_chart_database::$table_names['theme'] . ' WHERE id="%d"', self::$id));
@@ -754,22 +783,14 @@ class wpda_org_chart_tree_theme_page {
 		}
 	}
 
-	/*############ Function for duplicating the theme ##################*/
-	
 	private static function duplicate_theme() {
 		global $wpdb;
-		if(!wp_verify_nonce($_GET['nonce'], 'wpda_org_chart_tree_theme_page_nonce')){
-			self::$notification_html = '<div id="message" class="error"><p>Securyty Error</p></div>';
-			return;
-		}
 		$wpdb->query($wpdb->prepare('INSERT INTO ' . wpda_org_chart_database::$table_names['theme'] . ' ( `name`, `option_value`, `default` ) SELECT CONCAT(`name`,"(duplicate)"), `option_value`, 0 FROM ' . wpda_org_chart_database::$table_names['theme'] . ' WHERE id="%d"', self::$id));
 		$local_id = $wpdb->get_var("SELECT MAX(id) FROM " . wpda_org_chart_database::$table_names['theme']);
 		wpda_org_chart_user_permissions_library::set_id_to_meta_key($local_id, self::$page_id);
 		self::$notification_html = '<div class="updated"><p><strong>Item Duplicated</strong></p></div>';
 	}
 
-	/*############ Function for generating the theme parameters ##################*/
-	
 	private static function generate_theme_parameters() {
 		global $wpdb;
 		$theme_params = NULL;
@@ -818,20 +839,12 @@ class wpda_org_chart_tree_theme_page {
 		}
 	}	
 
-	/*############ Function for the default theme ##################*/		
-	
 	private static function set_default_theme() {
 		global $wpdb;
-		if(!wp_verify_nonce($_GET['nonce'], 'wpda_org_chart_tree_theme_page_nonce')){
-			self::$notification_html = '<div id="message" class="error"><p>Securyty Error</p></div>';
-			return;
-		}
 		$wpdb->update(wpda_org_chart_database::$table_names['theme'], array('default' => 0), array('default' => 1));
 		$wpdb->update(wpda_org_chart_database::$table_names['theme'], array('default' => 1), array('id' => self::$id));
 	}
 
-	/*############ Function for printing the notifications ##################*/		
-	
 	private static function print_notifications() {
 		if (self::$notification_html != '') {
 			echo self::$notification_html;
@@ -839,17 +852,15 @@ class wpda_org_chart_tree_theme_page {
 		}
 	}
 
-	/*############ Function for getting the table info ##################*/		
-	
 	private static function get_table_info() {
 		return array(
 			'keys' => array(
 				'id' => array('name' => 'ID', 'sortable' => true),
 				'name' => array('name' => 'Name', 'link' => '&task=add_edit_theme', 'sortable' => true),
-				'default' => array('name' => 'Default', 'link' => '&task=set_default_theme&nonce='.self::$nonce, 'replace_value' => array('0' => '<img src = "' . wpda_org_chart_plugin_url . 'admin/assets/images/default0.png">', '1' => '<img src = "' . wpda_org_chart_plugin_url . 'admin/assets/images/default1.png">')),
+				'default' => array('name' => 'Default', 'link' => '&task=set_default_theme', 'replace_value' => array('0' => '<img src = "' . wpda_org_chart_plugin_url . 'admin/assets/images/default0.png">', '1' => '<img src = "' . wpda_org_chart_plugin_url . 'admin/assets/images/default1.png">')),
 				'edit' => array('name' => 'Edit', 'link' => '&task=add_edit_theme'),
-				'duplicate' => array('name' => 'Duplicate', 'link' => '&task=duplicate_theme&nonce='.self::$nonce),
-				'delete' => array('name' => 'Delete', 'link' => '&task=remove_theme&nonce='.self::$nonce)
+				'duplicate' => array('name' => 'Duplicate', 'link' => '&task=duplicate_theme'),
+				'delete' => array('name' => 'Delete', 'link' => '&task=remove_theme')
 			),
 			'link_page' => 'wpda_chart_tree_themes',
 		);
@@ -881,10 +892,7 @@ class wpda_org_chart_tree_theme_page {
 		return $filtered_rows;
 	}
 
-	/*############ Function for the script styles ##################*/		
-	
 	public static function enqueue_scripts_styles() {
-		self::$nonce = wp_create_nonce('wpda_org_chart_tree_theme_page_nonce');
 		wp_enqueue_style('wpda_chart_theme_page_css', wpda_org_chart_plugin_url . 'admin/assets/css/theme_page.css');
 		switch (self::$task) {
 			case 'add_edit_theme':

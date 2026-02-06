@@ -10,8 +10,6 @@ class wpda_org_chart_admin_tree {
 
 	private static $task = '';
 
-	private static $nonce = '';
-
 	private static $page_id = 'wpda_org_chart_tree_id';
 
 	public static function initial_task() {
@@ -19,8 +17,6 @@ class wpda_org_chart_admin_tree {
 		self::$id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 	}
 
-	/*############ Function for the rendering the tree ##################*/		
-	
 	public static function render_tree() {
 		self::print_notifications();
 		switch (self::$task) {
@@ -38,8 +34,6 @@ class wpda_org_chart_admin_tree {
 		}
 	}
 
-	/*############ Function for the database ##################*/	
-	
 	public static function database_actions() {
 		switch (self::$task) {
 			case 'save_tree':
@@ -59,8 +53,6 @@ class wpda_org_chart_admin_tree {
 		}
 	}
 
-	/*############ Function for printing the notifications ##################*/	
-	
 	private static function print_notifications() {
 		if (self::$notification_html != '') {
 			echo self::$notification_html;
@@ -68,20 +60,15 @@ class wpda_org_chart_admin_tree {
 		}
 	}
 
-	/*############ Function for displaying the table list ##################*/
-	
 	private static function display_table_list() {
 		$params = array(
 			'name' => 'Tree - Organization Chart',
 			'add_new_link' => 'admin.php?page=wpda_chart_tree_page&task=add_tree',
 			'support_link' => wpda_org_chart_support_url,
-			'nonce' => self::$nonce,
 		); // params used in admin-page-task-list-header.php' file
 		include wpda_org_chart_plugin_path . 'library/base-templates/admin-page-task-list-header.php';
 	}
 
-	/*############ Function for adding/editing the chart element ##################*/
-	
 	private static function add_edit_tree() {
 		$standard_json = json_encode(
 			array(
@@ -97,23 +84,16 @@ class wpda_org_chart_admin_tree {
 			'plugin_url' => wpda_org_chart_plugin_url,
 			'tree' => self::$id ? self::get_tree_info(self::$id) : array(),
 			'id' => self::$id,
-			'standard_json' => $standard_json,
-			'nonce' => self::$nonce,
+			'standard_json' => $standard_json
 		);
 		include wpda_org_chart_plugin_path . 'library/base-templates/admin-page-task-add-edit-header.php';
 		include wpda_org_chart_plugin_path . 'admin/tree-page/add-edit-tree-template.php';
 	}
 
-	/*############ Function for saving the tree ##################*/	
-	
 	private static function save_tree() {
 		global $wpdb;
 		if (count($_POST) == 0)
 			return;
-		if(!wp_verify_nonce($_GET['nonce'], 'wpda_org_chart_tree_page_nonce')){
-			self::$notification_html = '<div id="message" class="error"><p>Securyty Error</p></div>';
-			return;
-		}
 		if (isset($_POST['name']) && $_POST['name'] != '') {
 			$name = sanitize_text_field($_POST['name']);
 		} else {
@@ -140,16 +120,10 @@ class wpda_org_chart_admin_tree {
 		}
 	}
 
-	/*############ Function for updating the tree ##################*/	
-	
 	private static function update_tree() {
 		global $wpdb;
 		if (count($_POST) == 0)
 			return;
-		if(!wp_verify_nonce($_GET['nonce'], 'wpda_org_chart_tree_page_nonce')){
-			self::$notification_html = '<div id="message" class="error"><p>Securyty Error</p></div>';
-			return;
-		}
 		if (isset($_POST['name']) && $_POST['name'] != '') {
 			$name = sanitize_text_field($_POST['name']);
 		} else {
@@ -176,8 +150,6 @@ class wpda_org_chart_admin_tree {
 		self::$notification_html = '<div class="updated"><p><strong>Item Saved</strong></p></div>';
 	}
 
-	/*############ Function for sanitizing some values ##################*/	
-	
 	private static function sanitize_node_values($json_string) {
 		$json_array = json_decode(stripslashes($json_string), true);
 		if ($json_array == null) {
@@ -186,8 +158,6 @@ class wpda_org_chart_admin_tree {
 		return json_encode(self::sanitize_node_helper($json_array), JSON_UNESCAPED_UNICODE);
 	}
 
-	/*############ Function for sanitizing the node helper ##################*/		
-	
 	private static function sanitize_node_helper($nodes) {		
 		if (count($nodes) == 0) {
 			return array();
@@ -224,8 +194,6 @@ class wpda_org_chart_admin_tree {
 		return $content;
 	}
 
-	/*############ Function for decoding the node value ##################*/		
-	
 	private static function decode_node_value($json_string) {
 		$json_array = json_decode($json_string, true);
 		if ($json_array == null) {
@@ -234,8 +202,6 @@ class wpda_org_chart_admin_tree {
 		return  self::decode_node_value_helper($json_array);
 	}
 
-	/*############ Function for the node value helper ##################*/		
-	
 	private static function decode_node_value_helper($nodes) {
 		if (count($nodes) == 0) {
 			return array();
@@ -263,8 +229,6 @@ class wpda_org_chart_admin_tree {
 		return $returned_array;
 	}
 
-	/*############ Function for getting the tree themes ##################*/		
-	
 	public static function get_tree_themes($value = '') {
 		global $wpdb;
 		$html = '<select id="node_theme">';
@@ -277,8 +241,6 @@ class wpda_org_chart_admin_tree {
 		return $html;
 	}
 
-	/*############ Function for getting the popup themes ##################*/		
-	
 	public static function get_tree_popup_themes($value = '') {
 		global $wpdb;
 		$html = '<select id="node_popup_theme">';
@@ -291,33 +253,19 @@ class wpda_org_chart_admin_tree {
 		return $html;
 	}
 
-	/*############ Function for tree duplication ##################*/		
-	
 	private static function duplicate_tree() {
 		global $wpdb;
-		if(!wp_verify_nonce($_GET['nonce'], 'wpda_org_chart_tree_page_nonce')){
-			self::$notification_html = '<div id="message" class="error"><p>Securyty Error</p></div>';
-			return;
-		}
 		$wpdb->query($wpdb->prepare('INSERT INTO ' . wpda_org_chart_database::$table_names['tree'] . ' ( name, tree_nodes ) SELECT CONCAT(name,"(duplicate)"), tree_nodes FROM ' . wpda_org_chart_database::$table_names['tree'] . ' WHERE id="%d"', self::$id));
 		self::$notification_html = '<div class="updated"><p><strong>Item Duplicated</strong></p></div>';
 	}
 
-	/*############ Function for tree removing ##################*/	
-	
 	private static function remove_tree() {
 		global $wpdb;
-		if(!wp_verify_nonce($_GET['nonce'], 'wpda_org_chart_tree_page_nonce')){
-			self::$notification_html = '<div id="message" class="error"><p>Securyty Error</p></div>';
-			return;
-		}
 		$wpdb->query($wpdb->prepare('DELETE FROM ' . wpda_org_chart_database::$table_names['tree'] . ' WHERE id="%d"', self::$id));
 		wpda_org_chart_user_permissions_library::remove_id_from_meta_key(self::$id, self::$page_id);
 		self::$notification_html = '<div class="updated"><p><strong>Item Deleted</strong></p></div>';
 	}
 
-	/*############ Function of obtaining information from the tree ##################*/		
-	
 	private static function get_tree_info() {
 		global $wpdb;
 		$tree = $wpdb->get_row('SELECT * FROM ' . wpda_org_chart_database::$table_names['tree'] . ' WHERE id=' . self::$id);
@@ -351,7 +299,6 @@ class wpda_org_chart_admin_tree {
 	}
 
 	public static function enqueue_scripts_styles() {
-		self::$nonce = wp_create_nonce('wpda_org_chart_tree_page_nonce');
 		wp_enqueue_style('wpda_chart_tree_page_css', wpda_org_chart_plugin_url . 'admin/assets/css/tree_page.css');
 		switch (self::$task) {
 			case 'add_tree':
@@ -379,21 +326,20 @@ class wpda_org_chart_admin_tree {
 			default:
 				wp_enqueue_style("wpda_admin_page_task_list_header", wpda_org_chart_plugin_url . 'library/css/admin-page-task-list-header.css');
 				wp_enqueue_script("wpda_chart_tree_page_list_js", wpda_org_chart_plugin_url . 'admin/assets/js/wpda_table_maker.js');
+				wp_enqueue_style("wpda_chart_tree_page_list_css", wpda_org_chart_plugin_url . 'admin/assets/css/wpda_table_maker.css');
 				wp_localize_script("wpda_chart_tree_page_list_js", 'wpdaPageRowsList', self::get_row_list());
 				wp_localize_script("wpda_chart_tree_page_list_js", 'wpdaPageRowsInfo', self::get_table_info());
 		}
 	}
 
-	/*############ Function for getting table information ##################*/		
-	
 	private static function get_table_info() {
 		return array(
 			'keys' => array(
 				'id' => array('name' => 'ID', 'sortable' => true),
 				'name' => array('name' => 'Name', 'link' => '&task=edit_tree', 'sortable' => true),
 				'edit' => array('name' => 'Edit', 'link' => '&task=edit_tree'),
-				'duplicate' => array('name' => 'Duplicate', 'link' => '&task=duplicate_tree&nonce='.self::$nonce),
-				'delete' => array('name' => 'Delete', 'link' => '&task=remove_tree&nonce='.self::$nonce)
+				'duplicate' => array('name' => 'Duplicate', 'link' => '&task=duplicate_tree'),
+				'delete' => array('name' => 'Delete', 'link' => '&task=remove_tree')
 			),
 			'link_page' => 'wpda_chart_tree_page',
 		);

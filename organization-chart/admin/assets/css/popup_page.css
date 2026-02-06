@@ -1,13 +1,12 @@
-/*######################################### ADD Edit Page  ###################################*/
 /*Header*/
 .wpda_theme_title {
   display: inline-block;
 }
+
 .header_action_buttons {
   float: right;
   margin-right: 15px;
 }
-/*name input*/
 
 .theme_name {
   margin-bottom: 10px;
@@ -15,11 +14,13 @@
   font-size: 18px;
   width: calc(100% - 16px);
 }
+
 /* tabs css*/
-.tab_container > h3 {
+.tab_container>h3 {
   margin-top: 5px;
   margin-left: 15px;
 }
+
 .tab_container {
   background-color: white;
   width: calc(100% - 16px);
@@ -29,7 +30,8 @@
   padding-right: 5px;
   box-sizing: border-box;
 }
-.wpda_theme_link_tabs > ul > li {
+
+.wpda_theme_link_tabs>ul>li {
   font-size: 15px;
   float: left;
   padding: 9px 27px 10px;
@@ -42,23 +44,27 @@
   color: #65666b;
   margin-bottom: 0px;
 }
-.wpda_theme_link_tabs > ul > li.active {
+
+.wpda_theme_link_tabs>ul>li.active {
   border-bottom: 0;
   padding-bottom: 9px;
   border-top: 3px solid #04a9dd;
   background: #fff;
   color: #04a9dd;
 }
-.tab_container > .wpda_theme_container_tabs {
+
+.tab_container>.wpda_theme_container_tabs {
   border: 1px solid #e2e2e2;
 }
-.tab_container > .wpda_theme_container_tabs > div {
+
+.tab_container>.wpda_theme_container_tabs>div {
   height: 0px;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.5s ease-out;
 }
-.tab_container > .wpda_theme_container_tabs > div.active {
+
+.tab_container>.wpda_theme_container_tabs>div.active {
   height: auto;
   display: block;
   opacity: 1;
@@ -66,22 +72,21 @@
   padding: 10px;
   padding-top: 20px;
 }
-.tab_container > .wpda_theme_container_tabs > div > div > div {
+
+.tab_container>.wpda_theme_container_tabs>div>div>div {
   display: block;
   margin-bottom: 20px;
 }
-.tab_container > .wpda_theme_container_tabs > div > div > div > div {
+
+.tab_container>.wpda_theme_container_tabs>div>div>div>div {
   margin-bottom: 8px;
 }
-.tab_container
-  > .wpda_theme_container_tabs
-  > div
-  > div
-  > div
-  > div:nth-child(2) {
+
+.tab_container>.wpda_theme_container_tabs>div>div>div>div:nth-child(2) {
   margin-left: 10px;
   padding-right: 10px;
 }
+
 .group_by_6 {
   padding-left: 5px;
   display: inline-block;
@@ -89,14 +94,17 @@
   margin-right: 40px;
   border-left: 1px solid #d5dadf;
 }
-.wpda_theme_container_tabs > div > div.group_by_6:nth-child(1) {
+
+.wpda_theme_container_tabs>div>div.group_by_6:nth-child(1) {
   border: none;
 }
+
 /*######################################### Top Support link ###################################*/
 
 #admin_form h2 {
   width: 95%;
 }
+
 .wpdevart-info-container {
   display: inline-block;
   position: relative;
@@ -108,7 +116,7 @@
   text-align: center;
   line-height: 1;
   box-shadow: 0 0 7px rgba(167, 167, 167, 0.62) inset;
-  cursor: pointer;
+  cursor: help;
   font-weight: bold;
   color: #444;
   margin-left: 20px;
@@ -131,9 +139,11 @@
   font-weight: normal;
   font-style: italic;
 }
+
 .red-section .wpdevart-info {
   color: red;
 }
+
 .wpdevart-info-container:hover .wpdevart-info {
   display: block;
 }

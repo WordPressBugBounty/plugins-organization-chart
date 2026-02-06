@@ -1,16 +1,16 @@
-<form action="<?php echo $params['current_page_link'] . '&nonce=' . $params['nonce'] . ($params['id'] ? ('&id=' . $params['id']) : ''); ?>" method="post" name="adminForm" class="top_description_table" id="adminForm">
+<form action="<?php echo esc_url($params['current_page_link'] . (!empty($params['id']) ? '&id=' . $params['id'] : '')); ?>" method="post" name="adminForm" class="top_description_table" id="adminForm">
     <div class="container">
         <div class="header">
             <span>
-                <h2 class="wpda_chart_tree_title"><?php echo $params['id'] ? ("Edit the Organization chart " . (isset($params['tree']->name) ? '<span style="color:#2abf00">' . esc_html($params['tree']->name) . '</span>' : '')) : "Add chart tree"; ?></h2>
+                <h2 class="wpda_chart_tree_title"><?php echo $params['id'] ? ("Edit the Organization chart " . (isset($params['tree']->name) ? '<span style="color:#2abf00">' . esc_attr($params['tree']->name) . '</span>' : '')) : "Add chart tree"; ?></h2>
             </span>
             <div class="header_action_buttons">
                 <span><input type="button" onclick="submitButton('save_tree')" value="Save" class="button-primary action"> </span>
                 <span><input type="button" onclick="submitButton('update_tree')" value="Apply" class="button-primary action"> </span>
-                <span><input type="button" onclick="window.location.href='<?php echo $params['current_page_link'] ?>'" value="Cancel" class="button-secondary action"> </span>
+                <span><input type="button" onclick="window.location.href='<?php echo esc_url($params['current_page_link']) ?>'" value="Cancel" class="button-secondary action"> </span>
             </div>
         </div>
-        <input type="text" class="tree_name" name="name" placeholder="Enter name here" value="<?php echo isset($params['tree']->name) ? esc_html($params['tree']->name) : '' ?>">
+        <input type="text" class="tree_name" name="name" placeholder="Enter name here" value="<?php echo esc_attr(isset($params['tree']->name) ? esc_attr($params['tree']->name) : ''); ?>">
         <div class="option_panel">
             <div class="org_chart_container">
                 <div id="wpdevart_tree" class='tree'>

@@ -53,8 +53,6 @@ class wpda_org_chart_user_permissions {
 		);
 	}
 
-	/*############ Function for rendering user permissions ##################*/		
-	
 	public static function render_user_permissions() {
 		self::print_notifications();		
 		$params = array(
@@ -67,15 +65,11 @@ class wpda_org_chart_user_permissions {
 		include wpda_org_chart_plugin_path . 'admin/user-permissions/user-permissions-template.php';
 	}
 
-	/*############ Function for the database ##################*/		
-	
 	public static function database_actions() {
 		self::update_permissions();
 		self::generate_parameters();
 	}
 
-	/*############ Function for printing the notifications ##################*/	
-	
 	private static function print_notifications() {
 		if (self::$notification_html != '') {
 			echo self::$notification_html;
@@ -83,14 +77,9 @@ class wpda_org_chart_user_permissions {
 		}
 	}
 
-	/*############ Function for updating the user permissions ##################*/	
-	
-	private static function update_permissions() {		
+	private static function update_permissions() {
+		
 		if(isset($_REQUEST['task']) && $_REQUEST['task'] =='save'){
-			if(!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'wpdevart_org_chart_user_premission_nonce')){
-				self::$notification_html = '<div id="message" class="error"><p>Securyty Error</p></div>';
-				return;
-			}
 			$params_array = get_option('wpda_chart_user_permissions', array());
 			if(!is_array($params_array)){
 				$params_array =  array();
@@ -120,7 +109,7 @@ class wpda_org_chart_user_permissions {
 
 	public static function enqueue_scripts_styles() {
 		wp_enqueue_script('wpda_user_permissions_page_js', wpda_org_chart_plugin_url . 'admin/assets/js/user_permissions_page.js');
-		wp_enqueue_style("wpda_admin_page_task_list_header", wpda_org_chart_plugin_url . 'library/css/admin-page-task-add-edit-header.css');
+		wp_enqueue_style("wpda_admin_page_task_list_header", wpda_org_chart_plugin_url . 'library/css/admin-page-task-list-header.css');
 		wp_enqueue_style("wpda_user_permissions", wpda_org_chart_plugin_url . 'admin/assets/css/user_permissions.css');
 		wp_enqueue_script('wpda_library_admin_js', wpda_org_chart_plugin_url . 'library/js/admin.js', array('jquery-ui-draggable'));
 		wp_enqueue_style('wpda_library_admin_css', wpda_org_chart_plugin_url . 'library/css/admin.css');
@@ -136,8 +125,6 @@ class wpda_org_chart_user_permissions {
 		wp_enqueue_style('wp-color-picker');
 	}
 
-	/*############ Function for the permissions ##################*/	
-	
 	public static function get_allowed_page_permission($key){
 		if(!isset(self::$options[$key]['value']))
 			self::generate_parameters();
@@ -150,8 +137,6 @@ class wpda_org_chart_user_permissions {
 		return self::$options[$key]['value'];
 	}
 
-	/*############ Function for generating the parameters ##################*/	
-	
 	private static function generate_parameters() {
 		$options_values = array();
 		if (get_option('wpda_chart_user_permissions', array())) {

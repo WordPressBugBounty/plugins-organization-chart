@@ -1,4 +1,4 @@
-<form action="<?php echo $params['current_page_link'] ?>" method="post" name="adminForm" class="top_description_table" id="adminForm">
+<form action="<?php echo esc_attr($params['current_page_link']) ?>" method="post" name="adminForm" class="top_description_table" id="adminForm">
     <div class="container">
         <div class="header">
             <span>
@@ -20,7 +20,6 @@
                 ?>
             </div>
             <br>
-            <input type="hidden" name="nonce" value="<?php echo wp_create_nonce( 'wpdevart_org_chart_user_premission_nonce' ); ?>">
             <input type="button" onclick="submitButton('save')" value="Save" class="button-primary action">
         </div>
     </div>
