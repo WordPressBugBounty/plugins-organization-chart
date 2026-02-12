@@ -79,7 +79,7 @@ class wpda_org_chart_user_permissions {
 
 	private static function update_permissions() {
 		
-		if(isset($_REQUEST['task']) && $_REQUEST['task'] =='save'){
+		if(isset($_REQUEST['task']) && $_REQUEST['task'] =='save' && isset($_POST['wpdevart_organization_chart_user_permissions_nonce_name']) &&  wp_verify_nonce($_POST['wpdevart_organization_chart_user_permissions_nonce_name'], 'wpdevart_organization_chart_user_permissions_action_name')){
 			$params_array = get_option('wpda_chart_user_permissions', array());
 			if(!is_array($params_array)){
 				$params_array =  array();

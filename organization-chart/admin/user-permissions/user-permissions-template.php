@@ -20,6 +20,7 @@
                 ?>
             </div>
             <br>
+            <?php wp_nonce_field( 'wpdevart_organization_chart_user_permissions_action_name','wpdevart_organization_chart_user_permissions_nonce_name' ); ?>
             <input type="button" onclick="submitButton('save')" value="Save" class="button-primary action">
         </div>
     </div>
